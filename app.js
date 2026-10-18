@@ -124,9 +124,8 @@
 
   function autoResizeComposer() {
     if (!els.composerInput || !els.composerInput.style) return;
-    els.composerInput.style.height = "auto";
-    var next = Math.min(Math.max(76, els.composerInput.scrollHeight || 76), 260);
-    els.composerInput.style.height = next + "px";
+    // Keep the composer stable while typing; longer drafts scroll inside it.
+    els.composerInput.style.height = "96px";
   }
 
   function restoreDraft() {
@@ -174,15 +173,6 @@
         els.composerInput.focus(); els.composerInput.setSelectionRange(els.composerInput.value.length, els.composerInput.value.length);
       });
       var editActions = document.createElement("div"); editActions.className = "message-actions"; editActions.appendChild(edit); div.appendChild(editActions);
-    }
-    if (role === "assistant" && source && source !== "deepinfra" && source !== "ai") {
-      var label = document.createElement("span");
-      label.className = "reply-source";
-      label.textContent = source === "safety" ? "Safety guidance" : source === "guardrail" ? "Local response" : "Basic offline reply";
-      div.appendChild(label);
-    }
-    if (role === "assistant" && source === "deepinfra" && latencyMs) {
-      var timing = document.createElement("span"); timing.className = "reply-meta"; timing.textContent = "AI reply · " + (latencyMs / 1000).toFixed(1) + "s"; div.appendChild(timing);
     }
     if (role === "assistant") {
       var actions = document.createElement("div");
