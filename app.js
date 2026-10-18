@@ -140,6 +140,11 @@
 
   /* ---------- thread rendering ---------- */
   function scrollBottom() {
+    if (document.body && document.body.classList.contains("chat-view") && els.thread && els.thread.lastElementChild) {
+      els.thread.lastElementChild.scrollIntoView({ block: "end", behavior: "auto" });
+      if (els.jumpLatestBtn) els.jumpLatestBtn.hidden = true;
+      return;
+    }
     els.thread.scrollTop = els.thread.scrollHeight;
     if (els.jumpLatestBtn) els.jumpLatestBtn.hidden = true;
   }
