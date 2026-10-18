@@ -1,7 +1,13 @@
 {
-  "functions": {
-    "api/*.js": {
-      "maxDuration": 60
-    }
-  }
+  "version": 2,
+  "builds": [
+    { "src": "api/*.js", "use": "@vercel/node", "config": { "maxDuration": 60 } },
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "styles.css", "use": "@vercel/static" },
+    { "src": "app.js", "use": "@vercel/static" },
+    { "src": "responder.js", "use": "@vercel/static" },
+    { "src": "safety.js", "use": "@vercel/static" },
+    { "src": "manifest.json", "use": "@vercel/static" },
+    { "src": "sw.js", "use": "@vercel/static" }
+  ]
 }
