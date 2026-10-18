@@ -168,6 +168,9 @@ body[data-theme="night"] .auth-modal { background: #282532; }
 body.chat-view .chat-card { min-height: 0; }
 body.chat-view .msg p { font-size: .92rem; line-height: 1.45; }
 body.chat-view #composer textarea { min-height: 96px; font-size: .95rem; }
+/* Keep the active conversation focused; starter prompts remain available on
+   the landing screen where they are most useful. */
+body.chat-view .chips-row { display: none; }
 
 /* layout */
 .layout {
