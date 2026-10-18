@@ -21,7 +21,7 @@
   var authMode = "login";
   var accountPromptReady = false;
   var authPromptShown = false;
-  var ACCOUNT_PROMPT_USER_TURNS = 4;
+  var ACCOUNT_PROMPT_USER_TURNS = 10;
   var sending = false;
   var editingIndex = null;
   var lastDeleted = null;

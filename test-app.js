@@ -141,7 +141,7 @@ test("browser fallback handles server loss and safety takes precedence", async (
   assert.equal(JSON.parse(storage.getItem(key))[0].messages[1].source, "safety");
 });
 
-test("account prompt waits for four user turns and resets for a new chat", async () => {
+test("account prompt waits for ten user turns and resets for a new chat", async () => {
   const storage = makeStorage();
   const provider = async () => ({ ok: true, json: async () => ({ text: "A concise reply.", source: "deepinfra" }) });
   const ui = makeApp(storage, provider);
@@ -149,14 +149,14 @@ test("account prompt waits for four user turns and resets for a new chat", async
   assert.equal(ui.authModal.hidden, true);
   assert.equal(ui.accountNudge.hidden, true);
 
-  for (let turn = 1; turn <= 3; turn++) {
+  for (let turn = 1; turn <= 9; turn++) {
     ui.composerInput.value = `Message ${turn}`;
     ui.composer.dispatch("submit");
     await settle();
     assert.equal(ui.authModal.hidden, true);
   }
 
-  ui.composerInput.value = "Message 4";
+  ui.composerInput.value = "Message 10";
   ui.composer.dispatch("submit");
   await settle();
   assert.equal(ui.authModal.hidden, false);
@@ -168,7 +168,7 @@ test("account prompt waits for four user turns and resets for a new chat", async
   assert.equal(ui.accountNudge.hidden, true);
 });
 
-test("opening an existing four-turn chat does not auto-open the account prompt", () => {
+test("opening an existing ten-turn chat does not auto-open the account prompt", () => {
   const storage = makeStorage();
   storage.setItem(key, JSON.stringify([{
     id: "existing",
@@ -178,7 +178,13 @@ test("opening an existing four-turn chat does not auto-open the account prompt",
       { role: "user", text: "One", at: Date.now() }, { role: "assistant", text: "Reply", at: Date.now() },
       { role: "user", text: "Two", at: Date.now() }, { role: "assistant", text: "Reply", at: Date.now() },
       { role: "user", text: "Three", at: Date.now() }, { role: "assistant", text: "Reply", at: Date.now() },
-      { role: "user", text: "Four", at: Date.now() }, { role: "assistant", text: "Reply", at: Date.now() }
+      { role: "user", text: "Four", at: Date.now() }, { role: "assistant", text: "Reply", at: Date.now() },
+      { role: "user", text: "Five", at: Date.now() }, { role: "assistant", text: "Reply", at: Date.now() },
+      { role: "user", text: "Six", at: Date.now() }, { role: "assistant", text: "Reply", at: Date.now() },
+      { role: "user", text: "Seven", at: Date.now() }, { role: "assistant", text: "Reply", at: Date.now() },
+      { role: "user", text: "Eight", at: Date.now() }, { role: "assistant", text: "Reply", at: Date.now() },
+      { role: "user", text: "Nine", at: Date.now() }, { role: "assistant", text: "Reply", at: Date.now() },
+      { role: "user", text: "Ten", at: Date.now() }, { role: "assistant", text: "Reply", at: Date.now() }
     ]
   }]));
   const ui = makeApp(storage, async () => ({ ok: true, json: async () => ({ text: "Reply", source: "deepinfra" }) }));
