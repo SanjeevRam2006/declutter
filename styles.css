@@ -162,9 +162,9 @@ body.focus-mode .focus-screen[hidden] { display: block !important; }
 .auth-switch { margin-top: 18px; color: var(--lav-deep); font-weight: 700; }
 body[data-theme="night"] .auth-modal input { background: #302c3b; color: var(--ink); border-color: #514866; }
 body[data-theme="night"] .auth-modal { background: #282532; }
-body.chat-view .chat-card { min-height: 680px; }
-body.chat-view .msg p { font-size: 1.3rem; }
-body.chat-view #composer textarea { min-height: 150px; font-size: 1.3rem; }
+body.chat-view .chat-card { min-height: 560px; }
+body.chat-view .msg p { font-size: 1.05rem; }
+body.chat-view #composer textarea { min-height: 120px; font-size: 1.05rem; }
 
 /* layout */
 .layout {
