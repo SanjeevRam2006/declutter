@@ -85,7 +85,7 @@ async function main() {
 
     await evaluate("document.querySelector('#composerInput').value = 'I have a report due tomorrow and keep avoiding it.'; document.querySelector('#composer').requestSubmit();");
     await waitFor(() => evaluate("document.querySelectorAll('#thread .msg-assistant:not(.typing)').length === 1"), "fallback reply");
-    assert.match(await evaluate("document.querySelector('#thread').innerText"), /Basic offline reply/);
+    assert.doesNotMatch(await evaluate("document.querySelector('#thread').innerText"), /Basic offline reply|AI reply|Local response/);
     assert.equal(await evaluate("document.querySelector('#historyCount').innerText"), "1");
 
     await command("Page.reload", { ignoreCache: true });

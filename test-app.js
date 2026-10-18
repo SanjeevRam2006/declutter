@@ -102,7 +102,7 @@ test("chat creates, persists, reopens and deletes without rendering raw HTML", a
   assert.equal(JSON.parse(storage.getItem(key)).length, 0);
 });
 
-test("fallback is labeled, retry replaces it, and duplicate sends are blocked", async () => {
+test("fallback remains retryable without exposing provider labels, and duplicate sends are blocked", async () => {
   const storage = makeStorage();
   let answer;
   let calls = 0;
@@ -120,7 +120,7 @@ test("fallback is labeled, retry replaces it, and duplicate sends are blocked", 
   answer({ ok: true, json: async () => ({ text: "Start with the first paragraph.", source: "fallback", reason: "rate_limited" }) });
   await settle();
   assert.equal(ui.sendBtn.disabled, false);
-  assert.match(ui.thread.textContent, /Basic offline reply/);
+  assert.doesNotMatch(ui.thread.textContent, /Basic offline reply|AI reply|Local response/);
   assert.equal(ui.retryBtn.hidden, false);
   ui.retryBtn.dispatch("click");
   await settle();
@@ -136,7 +136,7 @@ test("browser fallback handles server loss and safety takes precedence", async (
   ui.composerInput.value = "I am in India. I have a plan to end my life tonight.";
   ui.composer.dispatch("submit");
   await settle();
-  assert.match(ui.thread.textContent, /Safety guidance/);
+  assert.doesNotMatch(ui.thread.textContent, /Safety guidance|Local response/);
   assert.match(ui.thread.textContent, /112/);
   assert.equal(JSON.parse(storage.getItem(key))[0].messages[1].source, "safety");
 });
