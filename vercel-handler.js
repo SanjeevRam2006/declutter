@@ -1,10 +1,23 @@
 "use strict";
 
 const { createServer } = require("./server.js");
+const { handleSupabase } = require("./supabase-handler.js");
 
 // Vercel's Node runtime exposes the same request/response primitives as the
 // built-in HTTP server, so reuse the tested routing and validation layer.
 module.exports = function vercelHandler(req, res) {
+  const supabase = handleSupabase(req, res);
+  if (supabase && typeof supabase.then === "function") {
+    return supabase.then((handled) => {
+      if (handled) return;
+      return runLocalServer(req, res);
+    });
+  }
+  if (supabase) return supabase;
+  return runLocalServer(req, res);
+};
+
+function runLocalServer(req, res) {
   const server = createServer();
   // The existing local handler is async. Keep the Vercel invocation alive
   // until the response has actually been written; returning immediately
@@ -27,4 +40,4 @@ module.exports = function vercelHandler(req, res) {
       }
     }
   });
-};
+}

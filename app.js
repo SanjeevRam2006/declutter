@@ -12,7 +12,7 @@
   ["homeView", "homeEntry", "homeInput", "chatView", "thread", "promptChips", "composer", "composerInput", "sendBtn",
     "emptyError", "storageWarning", "responseStatus", "accountNudge", "nudgeSignup", "nudgeDismiss", "retryBtn",
     "historyList", "historyCount", "emptyHistory", "deleteAllBtn", "newChatBtn", "brandHome",
-    "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "chatStats", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "saveAccountChatBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authUsername", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authSwitchBtn"
+    "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "chatStats", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "saveAccountChatBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authEmail", "authEmailRow", "authUsername", "authUsernameRow", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authSwitchBtn"
   ].forEach(function (id) { els[id] = $(id); });
 
   var convos = [];
@@ -357,10 +357,13 @@
     els.authTitle.textContent = authMode === "signup" ? "Keep your place." : "Welcome back.";
     els.authSubmitBtn.textContent = authMode === "signup" ? "Create account" : "Log in";
     els.authSwitchBtn.textContent = authMode === "signup" ? "I already have an account" : "Create an account instead";
+    if (els.authUsernameRow) els.authUsernameRow.hidden = authMode !== "signup";
+    if (els.authUsername) els.authUsername.required = authMode === "signup";
+    if (els.authEmail) els.authEmail.focus();
     els.confirmPasswordRow.hidden = authMode !== "signup";
     els.authConfirmPassword.required = authMode === "signup";
     els.authError.hidden = true;
-    els.authUsername.focus();
+    if (els.authEmail) els.authEmail.focus(); else els.authUsername.focus();
   }
 
   function closeAuth() { if (els.authModal) els.authModal.hidden = true; }
@@ -831,8 +834,9 @@
     if (els.authSubmitBtn) els.authSubmitBtn.disabled = true;
     els.authError.hidden = true;
     try {
-      var data = await authRequest(authMode === "signup" ? "/api/auth/signup" : "/api/auth/login", { username: els.authUsername.value, password: els.authPassword.value, confirmPassword: els.authConfirmPassword.value });
+      var data = await authRequest(authMode === "signup" ? "/api/auth/signup" : "/api/auth/login", { email: els.authEmail ? els.authEmail.value : "", username: els.authUsername.value, password: els.authPassword.value, confirmPassword: els.authConfirmPassword.value });
       accountUser = data.user;
+      if (!accountUser) { els.authError.textContent = data.message || "Check your email to confirm your account."; els.authError.hidden = false; return; }
       // Clear credentials before closing so they are not retained in the DOM
       // if the dialog is reopened later.
       els.authPassword.value = "";

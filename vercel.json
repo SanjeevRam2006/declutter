@@ -11,6 +11,8 @@
     { "src": "sw.js", "use": "@vercel/static" }
   ],
   "routes": [
+    { "src": "/api/auth(?:/(.*))?", "dest": "/api/auth.js?route=$1" },
+    { "src": "/api/account(?:/(.*))?", "dest": "/api/account.js?route=$1" },
     { "src": "/api/(.*)", "dest": "/api/$1.js" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }

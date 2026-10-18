@@ -177,7 +177,8 @@
     <section class="auth-modal card" role="dialog" aria-modal="true" aria-labelledby="authTitle">
       <div class="card-head"><div><p class="step" id="authModeLabel">Log in</p><h2 id="authTitle">Welcome back.</h2></div><button class="btn btn-ghost btn-sm" id="authCloseBtn" type="button" aria-label="Close account dialog">Close</button></div>
       <form id="authForm" autocomplete="on">
-        <label for="authUsername">Username</label><input id="authUsername" name="username" autocomplete="username" required minlength="3" maxlength="32" pattern="[A-Za-z0-9_-]{3,32}" />
+        <div id="authEmailRow"><label for="authEmail">Email</label><input id="authEmail" name="email" type="email" autocomplete="email" required maxlength="254" /></div>
+        <div id="authUsernameRow"><label for="authUsername">Username</label><input id="authUsername" name="username" autocomplete="username" required minlength="3" maxlength="32" pattern="[A-Za-z0-9_-]{3,32}" /></div>
         <label for="authPassword">Password</label><input id="authPassword" name="password" type="password" autocomplete="current-password" required minlength="8" maxlength="200" />
         <div id="confirmPasswordRow" hidden><label for="authConfirmPassword">Confirm password</label><input id="authConfirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="200" /></div>
         <p class="form-error" id="authError" role="alert" hidden></p>

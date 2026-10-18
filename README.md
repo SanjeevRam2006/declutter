@@ -27,7 +27,7 @@ The server does not require Ollama. If the configured port is occupied, change `
 
 The hosted version uses the Vercel Node functions in `api/chat.js` and `api/health.js`. Browser chat history remains local to each browser, while DeepInfra requests run through the server-side function so the API key is never sent to the browser.
 
-The current login/account store is intentionally local-only and is not part of the hosted deployment. `data/users.json` is not a suitable persistent store for Vercel's serverless runtime. Use the chat without an account, or add a hosted identity/database provider in a later release.
+Hosted accounts use Supabase. Configure `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` in Vercel, then run `supabase-schema.sql` once in the Supabase SQL editor. Signup uses email, username, password, and confirmation; login uses email and password. Anonymous chats remain browser-local until a user explicitly saves one to their account.
 
 To deploy from GitHub:
 
@@ -43,7 +43,7 @@ To deploy from GitHub:
 
 Do not commit `.env`, `data/users.json`, or API keys. Vercel deployments do not need `npm start`; the platform discovers the `api/` functions and serves the static files directly.
 
-Account records are written to `data/users.json` (ignored by Git). Set `AUTH_FILE` if you need to place that file elsewhere. Restarting the server signs users out because sessions are held in memory.
+For local development without Supabase variables, the legacy file-backed account store remains available. It is not suitable for production because Vercel functions do not provide durable filesystem storage.
 
 ## Tests
 
