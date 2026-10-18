@@ -1,0 +1,14 @@
+{
+  "name": "back-to-center",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A small thinking companion with browser-local history and DeepInfra inference",
+  "scripts": {
+    "start": "node --env-file=.env server.js",
+    "test": "node --test test-responder.js test-server.js test-safety.js test-app.js",
+    "test:browser": "node smoke-browser.js"
+  },
+  "engines": {
+    "node": ">=20.6"
+  }
+}

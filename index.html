@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Declutter AI — Talk it through</title>
+  <meta name="description" content="Declutter AI: write what's on your mind and talk it through, one reply at a time." />
+  <meta name="theme-color" content="#7c6fae" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='%238B7FB8'/><circle cx='50' cy='50' r='16' fill='%23FAF7F2'/></svg>" />
+</head>
+<body>
+  <a class="skip-link" href="#composerInput">Skip to conversation</a>
+  <div class="ambient" aria-hidden="true">
+    <div class="ambient-grid"></div>
+    <div class="cursor-aura"></div>
+    <span class="ambient-orb ambient-orb-one"></span>
+    <span class="ambient-orb ambient-orb-two"></span>
+    <span class="ambient-orb ambient-orb-three"></span>
+    <span class="ambient-ring ambient-ring-one"></span>
+    <span class="ambient-ring ambient-ring-two"></span>
+  </div>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="#" id="brandHome">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-text">Declutter AI</span>
+      </a>
+      <nav class="header-nav">
+        <span class="header-note">A quiet place to think</span>
+        <button class="btn btn-ghost btn-sm" id="installBtn" type="button" hidden title="Install Declutter AI">Install app</button>
+        <button class="btn btn-ghost btn-sm" id="themeBtn" type="button" aria-pressed="false" title="Switch between day and night themes">Night theme</button>
+        <button class="btn btn-ghost btn-sm" id="sidebarBtn" type="button" aria-expanded="false" title="Open chats and tools">Chats</button>
+        <button class="btn btn-ghost btn-sm" id="focusBtn" type="button" aria-pressed="false" title="Open Focus Mode">Focus</button>
+        <button class="btn btn-ghost btn-sm" id="newChatBtn" type="button">New chat</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="home-view wrap" id="homeView" aria-labelledby="homeTitle">
+    <section class="home-hero">
+      <h1 id="homeTitle" class="home-brand-lockup"><span class="brand-mark" aria-hidden="true"></span><span>Declutter AI</span></h1>
+      <h2 class="home-title-description">Put it into words.<br /><em>Find your way forward.</em></h2>
+      <p class="home-lede">Declutter AI helps you untangle worries, decisions, frustrations, and thoughts that are hard to explain.</p>
+      <form class="home-entry" id="homeEntry" autocomplete="off">
+        <label class="visually-hidden" for="homeInput">Type anything</label>
+        <textarea id="homeInput" rows="3" maxlength="4000" placeholder="Type anything that's on your mind..."></textarea>
+        <div class="home-entry-footer"><span>Messy is fine. Start wherever you are.</span><button class="btn btn-primary" type="submit">Open your chat <span aria-hidden="true">→</span></button></div>
+      </form>
+      <div class="home-prompts" aria-label="Starter prompts">
+        <button type="button" class="chip" data-home-prompt="I keep thinking about...">I keep thinking about...</button>
+        <button type="button" class="chip" data-home-prompt="I need to decide whether...">I need to decide whether...</button>
+        <button type="button" class="chip" data-home-prompt="Something happened and I'm not sure what to make of it.">I'm not sure what to make of it</button>
+      </div>
+    </section>
+    <div class="home-principles" aria-label="What Declutter AI does">
+      <article><span>01</span><h2>Say it plainly</h2><p>Start with the raw version. You don't need the perfect words.</p></article>
+      <article><span>02</span><h2>See it clearly</h2><p>Talk through what happened, what you assume, and what matters.</p></article>
+      <article><span>03</span><h2>Take one step</h2><p>Leave with a useful perspective or one realistic next move.</p></article>
+    </div>
+  </main>
+
+  <main class="wrap layout" id="chatView" hidden>
+    <div class="main-column">
+      <section class="hero">
+        <h1>What's on your mind? <em>Say it plainly.</em></h1>
+        <p class="lede">Write whatever's there — messy is fine. You'll get an honest reply, and you can keep talking from there.</p>
+      </section>
+
+      <section class="card chat-card" aria-label="Conversation">
+        <div class="thread" id="thread" role="log" aria-label="Conversation messages" aria-live="polite" aria-relevant="additions text"></div>
+        <button class="jump-latest" id="jumpLatestBtn" type="button" hidden>Jump to latest ↓</button>
+        <section class="takeaway" id="takeaway" aria-labelledby="takeawayTitle" hidden>
+          <div class="takeaway-head"><h2 id="takeawayTitle">Saved takeaway</h2><button class="link-btn danger" id="clearTakeawayBtn" type="button">Clear</button></div>
+          <p id="takeawayText"></p>
+        </section>
+        <p class="chat-stats" id="chatStats" aria-live="polite"></p>
+
+        <div class="chips chips-row" id="promptChips">
+          <button type="button" class="chip" data-prompt="I have too many tabs open in my head — work, messages I haven't replied to, and…">Too many tabs open</button>
+          <button type="button" class="chip" data-prompt="I keep putting off something important because I don't know where to begin…">Keep putting it off</button>
+          <button type="button" class="chip" data-prompt="Something happened today and I can't stop replaying it…">Replaying today</button>
+          <button type="button" class="chip" data-prompt="I'm tired but my mind won't slow down. Tomorrow feels like a lot because…">Tired mind</button>
+          <button type="button" class="chip prompt-secondary" data-prompt="I need to have a difficult conversation, and the part I'm worried about is…">Difficult conversation</button>
+          <button type="button" class="chip prompt-secondary" data-prompt="I'm waiting for someone to reply and I keep reading into the silence…">Waiting for a reply</button>
+          <button type="button" class="chip prompt-secondary" data-prompt="I have two options and keep going back and forth because…">Stuck between options</button>
+          <button type="button" class="chip prompt-secondary" data-prompt="I'm being hard on myself about…">Being hard on myself</button>
+          <button type="button" class="chip chip-random prompt-secondary" data-random="true">Give me a starting point</button>
+          <button type="button" class="link-btn prompt-toggle" id="togglePromptsBtn" aria-expanded="false">Show more prompts</button>
+        </div>
+
+        <form id="composer" autocomplete="off">
+          <label class="visually-hidden" for="composerInput">Write a message</label>
+          <textarea id="composerInput" rows="3" maxlength="4000" aria-describedby="composerHint" placeholder="Write what's on your mind…"></textarea>
+          <p class="composer-hint" id="composerHint">Enter to send · Shift+Enter for a new line <span id="draftStatus" aria-live="polite"></span><button class="clear-draft" id="clearDraftBtn" type="button" hidden>Clear draft</button><span class="char-count" id="charCount" aria-live="polite">0 / 4,000</span></p>
+          <div class="actions-row composer-row">
+            <button class="btn btn-primary" id="sendBtn" type="submit">Send <span aria-hidden="true">→</span></button>
+          </div>
+        </form>
+        <p class="form-error" id="emptyError" role="alert" hidden>Write a little something first — even a rough fragment is enough.</p>
+        <p class="response-status" id="responseStatus" role="status" hidden></p>
+        <div class="account-nudge" id="accountNudge" hidden><span>This chat is local to this browser.</span><button class="link-btn" id="nudgeSignup" type="button">Create an account to save it</button><button class="link-btn" id="nudgeDismiss" type="button">Not now</button></div>
+        <button class="btn btn-ghost btn-sm retry-btn" id="retryBtn" type="button" hidden>Try DeepInfra again</button>
+        <button class="btn btn-danger-ghost btn-sm current-delete" id="deleteCurrentBtn" type="button" hidden>Delete current chat</button>
+        <p class="storage-warning" id="storageWarning" role="alert" hidden></p>
+        <p class="honesty-note">AI replies send this conversation to DeepInfra for processing. Your history is saved in this browser; if DeepInfra is unavailable, a basic responder can reply without it.</p>
+      </section>
+    </div>
+
+    <aside class="side-column">
+      <section class="card history" aria-labelledby="historyTitle">
+        <div class="history-header">
+          <div>
+            <h2 id="historyTitle">Past chats</h2>
+            <p class="muted small">Stored in this browser's local storage.</p>
+          </div>
+          <div class="history-header-tools"><span class="count-pill" id="historyCount">0</span><button class="link-btn history-archive-link" id="archivedBtn" type="button" aria-pressed="false" hidden>Archived</button></div>
+        </div>
+        <div class="history-filters" role="toolbar" aria-label="Chat filters">
+          <button class="link-btn" id="activeChatsBtn" type="button" aria-pressed="true">Active</button>
+          <button class="link-btn" id="pinnedOnlyBtn" type="button" aria-pressed="false">Pinned</button>
+        </div>
+        <label class="visually-hidden" for="historySearch">Search past chats</label>
+        <div class="history-search-row"><input class="history-search" id="historySearch" type="search" placeholder="Search chats and notes... (Esc clears)" autocomplete="off" /><button class="clear-search" id="clearSearchBtn" type="button" aria-label="Clear history search" hidden>×</button></div>
+        <p class="history-section-label">Conversations</p>
+        <ul class="history-list" id="historyList"></ul>
+        <p class="empty-history" id="emptyHistory">Nothing here yet. Your chats will appear once you start talking.</p>
+        <p class="history-section-label history-tools-label">Your data</p>
+        <div class="history-tools" aria-label="Chat backup tools">
+          <button class="btn btn-soft btn-sm" id="exportBtn" type="button">Export chats</button>
+        </div>
+        <p class="muted small">Export keeps a copy on your device. Chats stay local unless you explicitly save one to your account.</p>
+        <button class="btn btn-danger-ghost btn-sm" id="deleteAllBtn" type="button">Delete all local chats</button>
+        <button class="btn btn-soft btn-sm undo-delete" id="undoDeleteBtn" type="button" hidden>Undo last deletion</button>
+      </section>
+
+      <section class="card account-card" aria-labelledby="accountTitle">
+        <div class="card-head"><div><h2 id="accountTitle">Your account</h2><p class="muted small" id="accountStatus">Save selected chats across sessions when you choose.</p></div></div>
+        <div class="account-actions"><button class="btn btn-soft btn-sm" id="loginBtn" type="button">Log in</button><button class="btn btn-ghost btn-sm" id="signupBtn" type="button">Create account</button><button class="btn btn-ghost btn-sm" id="logoutBtn" type="button" hidden>Log out</button><button class="btn btn-primary btn-sm" id="saveAccountChatBtn" type="button" hidden>Save current chat</button></div>
+        <ul class="account-saved-list" id="accountSavedList" aria-label="Saved account chats"></ul>
+      </section>
+
+      <section class="card about">
+        <h2>What this is</h2>
+        <p class="muted small">A simple talking space: you write, it replies plainly, you reply back. No scores, no streaks, no productivity system.</p>
+        <p class="muted small"><strong>How replies work:</strong> messages go through this local server to DeepInfra. The API key stays on the server. A basic responder is used when DeepInfra cannot reply.</p>
+        <p class="muted small"><strong>Your data:</strong> local storage is not encrypted. Clearing browser site data may remove chats. Deleting a chat removes it here, but cannot erase messages already sent to DeepInfra.</p>
+        <p class="muted small"><strong>Scope:</strong> this is a thinking companion, not a therapist. It helps you get your head straight and decide what to do next — it isn't a substitute for professional support.</p>
+        <p class="muted small">If you&rsquo;re in distress, please reach out to someone you trust or a local support line. This app isn&rsquo;t a substitute for professional help.</p>
+        <button class="btn btn-ghost btn-sm" id="checkHealthBtn" type="button">Check connection</button>
+        <p class="muted small" id="healthResult" role="status" aria-live="polite"></p>
+        <div class="text-size-tools" aria-label="Text size controls">
+          <span class="muted small">Text size</span>
+          <button class="btn btn-ghost btn-sm" id="textSmallerBtn" type="button" aria-label="Decrease text size">A−</button>
+          <button class="btn btn-ghost btn-sm" id="textResetBtn" type="button">Reset</button>
+          <button class="btn btn-ghost btn-sm" id="textLargerBtn" type="button" aria-label="Increase text size">A+</button>
+          <button class="btn btn-ghost btn-sm" id="timestampsBtn" type="button" aria-pressed="true">Times on</button>
+        </div>
+      </section>
+      <section class="card private-notes" aria-labelledby="privateNotesTitle">
+        <div class="card-head">
+          <div>
+            <h2 id="privateNotesTitle">Private note</h2>
+            <p class="muted small">Only saved in this browser. Never sent to the AI.</p>
+          </div>
+          <span class="badge">Local only</span>
+        </div>
+        <textarea id="privateNote" rows="5" maxlength="4000" placeholder="Add context, a reminder, or something you want to remember..."></textarea>
+        <p class="composer-hint" id="noteStatus" aria-live="polite"></p>
+      </section>
+    </aside>
+  </main>
+
+  <div class="modal-backdrop" id="authModal" hidden>
+    <section class="auth-modal card" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <div class="card-head"><div><p class="step" id="authModeLabel">Log in</p><h2 id="authTitle">Welcome back.</h2></div><button class="btn btn-ghost btn-sm" id="authCloseBtn" type="button" aria-label="Close account dialog">Close</button></div>
+      <form id="authForm" autocomplete="on">
+        <label for="authUsername">Username</label><input id="authUsername" name="username" autocomplete="username" required minlength="3" maxlength="32" pattern="[A-Za-z0-9_-]{3,32}" />
+        <label for="authPassword">Password</label><input id="authPassword" name="password" type="password" autocomplete="current-password" required minlength="8" maxlength="200" />
+        <div id="confirmPasswordRow" hidden><label for="authConfirmPassword">Confirm password</label><input id="authConfirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="200" /></div>
+        <p class="form-error" id="authError" role="alert" hidden></p>
+        <button class="btn btn-primary" id="authSubmitBtn" type="submit">Log in</button>
+      </form>
+      <button class="link-btn auth-switch" id="authSwitchBtn" type="button">Create an account instead</button>
+    </section>
+  </div>
+
+  <main class="focus-screen wrap" id="focusScreen" hidden aria-labelledby="focusTitle">
+    <section class="focus-panel card">
+      <div class="focus-head">
+        <div>
+          <p class="step">Focus Mode</p>
+          <h1 id="focusTitle">A little time for one thing.</h1>
+          <p class="muted">Choose a timer, add a short intention if you want, and begin.</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="focusBackBtn" type="button">Back to chat</button>
+      </div>
+
+      <div class="focus-mode-tabs" role="tablist" aria-label="Focus timer type">
+        <button class="btn btn-soft btn-sm" id="countdownModeBtn" type="button" role="tab" aria-selected="true">Countdown</button>
+        <button class="btn btn-ghost btn-sm" id="stopwatchModeBtn" type="button" role="tab" aria-selected="false">Stopwatch</button>
+      </div>
+
+      <div class="focus-clock" aria-live="polite" aria-atomic="true">
+        <span id="focusTime">25:00</span>
+        <span class="focus-state" id="focusState">Ready</span>
+      </div>
+
+      <div class="focus-presets" id="focusPresets" aria-label="Countdown presets">
+        <button class="btn btn-ghost btn-sm" type="button" data-focus-minutes="5">5 min</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-focus-minutes="10">10 min</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-focus-minutes="15">15 min</button>
+        <button class="btn btn-soft btn-sm" type="button" data-focus-minutes="25">25 min</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-focus-minutes="45">45 min</button>
+        <button class="btn btn-ghost btn-sm" type="button" data-focus-minutes="60">60 min</button>
+      </div>
+
+      <label class="focus-intention" for="focusDescription">What are you working on? <span>(optional)</span>
+        <input id="focusDescription" type="text" maxlength="160" placeholder="One clear intention" autocomplete="off" />
+      </label>
+
+      <div class="focus-controls">
+        <button class="btn btn-primary" id="focusStartBtn" type="button">Start</button>
+        <button class="btn btn-ghost" id="focusResetBtn" type="button">Reset</button>
+      </div>
+      <p class="focus-note" id="focusNotice" role="status" aria-live="polite">Your timer stays accurate if you switch tabs or return to chat.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Declutter AI · AI replies are processed by DeepInfra.</p>
+    </div>
+  </footer>
+
+  <div class="shortcut-overlay" id="shortcutOverlay" hidden>
+    <div class="shortcut-dialog" role="dialog" aria-modal="true" aria-labelledby="shortcutTitle">
+      <div class="card-head"><h2 id="shortcutTitle">Keyboard shortcuts</h2><button class="link-btn" id="closeShortcutsBtn" type="button">Close</button></div>
+      <dl class="shortcut-list">
+        <dt><kbd>Enter</kbd></dt><dd>Send a message</dd>
+        <dt><kbd>Shift</kbd> + <kbd>Enter</kbd></dt><dd>New line</dd>
+        <dt><kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd></dt><dd>Send from any line</dd>
+        <dt><kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>K</kbd></dt><dd>Focus the composer</dd>
+        <dt><kbd>/</kbd></dt><dd>Focus chat search</dd>
+        <dt><kbd>N</kbd></dt><dd>Start a new chat</dd>
+        <dt><kbd>R</kbd></dt><dd>Regenerate the latest reply</dd>
+        <dt><kbd>?</kbd></dt><dd>Show this guide</dd>
+        <dt><kbd>Esc</kbd></dt><dd>Close dialogs</dd>
+      </dl>
+    </div>
+  </div>
+
+  <script src="responder.js?v=20261018"></script>
+  <script src="safety.js?v=20261018"></script>
+  <script src="app.js?v=20261018"></script>
+</body>
+</html>
