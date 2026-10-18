@@ -677,6 +677,12 @@
     event.preventDefault();
     enterChatWith(els.homeInput ? els.homeInput.value.trim() : "");
   });
+  if (els.homeInput) els.homeInput.addEventListener("keydown", function (event) {
+    if (event.key !== "Enter" || event.shiftKey || event.isComposing) return;
+    event.preventDefault();
+    if (els.homeEntry && typeof els.homeEntry.requestSubmit === "function") els.homeEntry.requestSubmit();
+    else if (els.homeEntry) els.homeEntry.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
+  });
   if (els.homeView) Array.prototype.forEach.call(els.homeView.querySelectorAll("[data-home-prompt]"), function (button) {
     button.addEventListener("click", function () { enterChatWith(button.getAttribute("data-home-prompt") || ""); });
   });
