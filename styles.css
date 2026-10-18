@@ -439,7 +439,11 @@ kbd { display: inline-block; min-width: 24px; padding: 3px 7px; border: 1px soli
 
 /* Large-screen scale: use the available canvas instead of rendering the app at a tablet scale. */
 @media (min-width: 1200px) {
-  html { font-size: 22px; }
+  /* Keep the wide desktop layout spacious without scaling every control up
+     like a browser zoom. The previous 22px root made the chat feel oversized
+     on presentation screens; 16px keeps the same proportions at a calmer,
+     roughly 70% visual scale while preserving the responsive layout. */
+  html { font-size: 16px; }
   .wrap { max-width: none; padding-left: 44px; padding-right: 44px; }
   .header-inner { padding-top: 18px; padding-bottom: 18px; }
   .header-nav { gap: 18px; }
