@@ -6,8 +6,11 @@ const COOKIE = "declutter_supabase_access";
 const MAX_BODY = 256 * 1024;
 
 function configFromEnv(env = process.env) {
+  const rawUrl = String(env.SUPABASE_URL || "https://uvlabtixfujklzklfeaw.supabase.co").trim();
+  const dashboardMatch = rawUrl.match(/supabase\.com\/dashboard\/project\/([a-z0-9]+)(?:[/?#].*)?$/i);
+  const projectUrl = dashboardMatch ? `https://${dashboardMatch[1]}.supabase.co` : rawUrl;
   return {
-    url: String(env.SUPABASE_URL || "https://uvlabtixfujklzklfeaw.supabase.co").replace(/\/$/, ""),
+    url: projectUrl.replace(/\/$/, ""),
     anon: String(env.SUPABASE_ANON_KEY || "").trim(),
     service: String(env.SUPABASE_SERVICE_ROLE_KEY || "").trim()
   };
@@ -134,7 +137,8 @@ async function handleAuth(req, res, route, config) {
       json(res, 200, { authenticated: true, user: { id: user.id, email: user.email, username: user.user_metadata?.username || body.username || "" } }, { "Set-Cookie": setCookie(data.access_token) });
     } catch (error) {
       const status = error.status === 400 || error.status === 401 ? 401 : error.status === 409 ? 409 : 502;
-      json(res, status, { error: status === 401 ? "Email or password is incorrect." : error.message, code: error.code });
+      const message = status === 401 ? "Email or password is incorrect." : error.code === "supabase_error" ? error.message : "Supabase is unavailable. Check the Supabase project URL and Vercel environment variables.";
+      json(res, status, { error: message, code: error.code });
     }
     return true;
   }
