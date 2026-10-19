@@ -164,16 +164,20 @@ async function handleAuth(req, res, route, config) {
   }
   if (route === "/api/auth/change-password" && req.method === "POST") {
     const token = cookieValue(req, COOKIE);
-    if (!token || !(await currentUser(config, token))) { json(res, 401, { error: "Log in to change your password.", code: "authentication_required" }); return true; }
+    const signedInUser = token ? await currentUser(config, token) : null;
+    if (!signedInUser) { json(res, 401, { error: "Log in to change your password.", code: "authentication_required" }); return true; }
     let body;
     try { body = JSON.parse(await readBody(req)); } catch (_) { json(res, 400, { error: "Invalid request." }); return true; }
-    if (!body || typeof body.password !== "string" || body.password.length < 8 || body.password.length > 200) { json(res, 400, { error: "Choose a password of at least 8 characters." }); return true; }
+    if (!body || typeof body.currentPassword !== "string" || !body.currentPassword) { json(res, 400, { error: "Enter your current password." }); return true; }
+    if (typeof body.password !== "string" || body.password.length < 8 || body.password.length > 200) { json(res, 400, { error: "Choose a password of at least 8 characters." }); return true; }
     if (body.password !== body.confirmPassword) { json(res, 400, { error: "Passwords do not match." }); return true; }
     try {
-      await supabaseRequest(config, "/auth/v1/user", { method: "PUT", accessToken: token, body: JSON.stringify({ password: body.password }) });
-      json(res, 200, { ok: true });
+      const login = await supabaseRequest(config, "/auth/v1/token?grant_type=password", { method: "POST", body: JSON.stringify({ email: signedInUser.email, password: body.currentPassword }) });
+      if (!login.access_token) { json(res, 401, { error: "Your current password is incorrect.", code: "invalid_current_password" }); return true; }
+      await supabaseRequest(config, "/auth/v1/user", { method: "PUT", accessToken: login.access_token, body: JSON.stringify({ password: body.password }) });
+      json(res, 200, { ok: true }, { "Set-Cookie": setCookie(login.access_token) });
     } catch (error) {
-      json(res, error.status === 401 ? 401 : 502, { error: error.status === 401 ? "Your session expired. Log in again and retry." : "Could not update your password right now.", code: error.code });
+      json(res, error.status === 400 || error.status === 401 ? 401 : 502, { error: error.status === 400 || error.status === 401 ? "Your current password is incorrect." : "Could not update your password right now.", code: error.code });
     }
     return true;
   }
