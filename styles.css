@@ -67,6 +67,14 @@ body[data-theme="night"] .btn-primary:hover { background: #fff; color: #15121f; 
 
 /* Focus Mode uses a deeper, higher-contrast palette so the timer is easier to read. */
 body.focus-mode {
+  --bg: #f6f3fb; --bg-soft: #ece8f5; --card: rgba(255, 253, 249, 0.92);
+  --ink: #29263a; --ink-soft: #5d586d; --ink-faint: #7e7890;
+  --line: #dcd6e9; --line-soft: #e8e2f0; --lav: #7665ad; --lav-deep: #5d4d91;
+  --lav-soft: #e9e3f8; --lav-mist: #f5f1fc;
+  --shadow: 0 18px 70px rgba(80, 66, 120, 0.14), 0 1px 0 rgba(255, 255, 255, 0.72) inset;
+  --shadow-sm: 0 8px 28px rgba(80, 66, 120, 0.1);
+}
+body.focus-mode[data-theme="night"] {
   --bg: #101522; --bg-soft: #192238; --card: rgba(25, 32, 53, 0.92);
   --ink: #f4f7ff; --ink-soft: #c6d0e7; --ink-faint: #93a1c0;
   --line: #34415f; --line-soft: #28344f; --lav: #9caeff; --lav-deep: #c3ceff;
@@ -74,7 +82,7 @@ body.focus-mode {
   --shadow: 0 18px 70px rgba(3, 8, 22, 0.38), 0 1px 0 rgba(255, 255, 255, 0.05) inset;
   --shadow-sm: 0 8px 28px rgba(3, 8, 22, 0.28);
 }
-body.focus-mode .site-header { background: rgba(16, 21, 34, 0.72); border-color: rgba(156, 174, 255, 0.18); }
+body.focus-mode .site-header { background: color-mix(in srgb, var(--card) 78%, transparent); border-color: color-mix(in srgb, var(--lav) 18%, var(--line)); }
 body.focus-mode .btn-primary { background: #eff3ff; color: #111827; box-shadow: 0 10px 30px rgba(134, 158, 255, 0.24); }
 body.focus-mode .btn-primary:hover { background: #fff; }
 body.focus-mode .msg-user { background: #e7edff; color: #172033; }
@@ -92,12 +100,17 @@ body.focus-mode .msg-user .message-action { color: #53648e; }
 .ambient-ring-one { width: 58vw; height: 58vw; max-width: 880px; max-height: 880px; top: 4%; left: 21%; }
 .ambient-ring-two { width: 36vw; height: 36vw; max-width: 520px; max-height: 520px; top: 21%; left: 34%; border-color: rgba(124,111,174,.1); }
 @keyframes float-orb { from { transform: translate3d(-12px, 8px, 0) scale(.98); } to { transform: translate3d(18px, -18px, 0) scale(1.04); } }
-body.focus-mode .ambient-grid { opacity: .5; background-image: linear-gradient(rgba(156,174,255,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(156,174,255,.08) 1px, transparent 1px); }
+body.focus-mode .ambient-grid { opacity: .34; background-image: linear-gradient(color-mix(in srgb, var(--lav) 10%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--lav) 10%, transparent) 1px, transparent 1px); }
 body.focus-mode .cursor-aura { background: radial-gradient(circle, rgba(116, 145, 255, .24), rgba(116, 145, 255, 0) 68%); }
-body.focus-mode .ambient-orb-one { background: #5267c8; opacity: .28; }
-body.focus-mode .ambient-orb-two { background: #367b91; opacity: .2; }
-body.focus-mode .ambient-orb-three { background: #8f75e8; opacity: .22; }
-body.focus-mode .ambient-ring { border-color: rgba(156,174,255,.22); }
+body.focus-mode .ambient-orb-one { background: #c9b9ed; opacity: .26; }
+body.focus-mode .ambient-orb-two { background: #b8d9d1; opacity: .18; }
+body.focus-mode .ambient-orb-three { background: #d5c5f1; opacity: .2; }
+body.focus-mode .ambient-ring { border-color: color-mix(in srgb, var(--lav) 20%, transparent); }
+body.focus-mode[data-theme="night"] .ambient-grid { opacity: .5; background-image: linear-gradient(rgba(156,174,255,.08) 1px, transparent 1px), linear-gradient(90deg, rgba(156,174,255,.08) 1px, transparent 1px); }
+body.focus-mode[data-theme="night"] .ambient-orb-one { background: #5267c8; opacity: .28; }
+body.focus-mode[data-theme="night"] .ambient-orb-two { background: #367b91; opacity: .2; }
+body.focus-mode[data-theme="night"] .ambient-orb-three { background: #8f75e8; opacity: .22; }
+body.focus-mode[data-theme="night"] .ambient-ring { border-color: rgba(156,174,255,.22); }
 
 .wrap { width: 100%; max-width: none; margin: 0 auto; padding: 0 28px; }
 
