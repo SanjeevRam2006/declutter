@@ -1,7 +1,5 @@
 "use strict";
 
-const crypto = require("node:crypto");
-
 const COOKIE = "declutter_supabase_access";
 const MAX_BODY = 256 * 1024;
 
@@ -104,6 +102,11 @@ function validateLogin(body) {
   return "";
 }
 
+function validateResetRequest(body) {
+  if (!body || typeof body.email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email.trim())) return "Enter a valid email address.";
+  return "";
+}
+
 async function currentUser(config, token) {
   if (!token) return null;
   try { return await supabaseRequest(config, "/auth/v1/user", { method: "GET", accessToken: token }); }
@@ -139,6 +142,38 @@ async function handleAuth(req, res, route, config) {
       const status = error.status === 400 || error.status === 401 ? 401 : error.status === 409 ? 409 : 502;
       const message = status === 401 ? "Email or password is incorrect." : error.code === "supabase_error" ? error.message : "Supabase is unavailable. Check the Supabase project URL and Vercel environment variables.";
       json(res, status, { error: message, code: error.code });
+    }
+    return true;
+  }
+  if (route === "/api/auth/reset-request" && req.method === "POST") {
+    let body;
+    try { body = JSON.parse(await readBody(req)); } catch (_) { json(res, 400, { error: "Invalid request." }); return true; }
+    const issue = validateResetRequest(body);
+    if (issue) { json(res, 400, { error: issue }); return true; }
+    try {
+      const redirectTo = String(process.env.PUBLIC_APP_URL || "https://declutter-fawn.vercel.app").replace(/\/$/, "");
+      await supabaseRequest(config, "/auth/v1/recover", { method: "POST", body: JSON.stringify({ email: body.email.trim().toLowerCase(), redirect_to: redirectTo }) });
+      json(res, 200, { ok: true, message: "If that email has an account, a reset link is on its way." });
+    } catch (error) {
+      // Do not reveal whether an email exists. Log-in configuration errors are
+      // still actionable, while provider responses remain intentionally vague.
+      const status = error.code === "supabase_not_configured" ? 503 : 502;
+      json(res, status, { error: status === 503 ? "Supabase is unavailable. Check the project configuration." : "Could not send a reset link right now.", code: error.code });
+    }
+    return true;
+  }
+  if (route === "/api/auth/update-password" && req.method === "POST") {
+    let body;
+    try { body = JSON.parse(await readBody(req)); } catch (_) { json(res, 400, { error: "Invalid request." }); return true; }
+    if (!body || typeof body.token !== "string" || !body.token || typeof body.password !== "string" || body.password.length < 8 || body.password.length > 200 || body.password !== body.confirmPassword) {
+      json(res, 400, { error: body && body.password !== body.confirmPassword ? "Passwords do not match." : "Choose a password of at least 8 characters." });
+      return true;
+    }
+    try {
+      await supabaseRequest(config, "/auth/v1/user", { method: "PUT", accessToken: body.token, body: JSON.stringify({ password: body.password }) });
+      json(res, 200, { ok: true, message: "Password updated. You can now log in." });
+    } catch (error) {
+      json(res, error.status === 401 ? 401 : 502, { error: error.status === 401 ? "That reset link is invalid or expired. Request a new one." : "Could not update the password right now.", code: error.code });
     }
     return true;
   }

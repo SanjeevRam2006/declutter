@@ -12,7 +12,7 @@
   ["homeView", "homeEntry", "homeInput", "chatView", "thread", "promptChips", "composer", "composerInput", "sendBtn",
     "emptyError", "storageWarning", "responseStatus", "accountNudge", "nudgeSignup", "nudgeDismiss", "retryBtn",
     "historyList", "historyCount", "emptyHistory", "deleteAllBtn", "newChatBtn", "brandHome",
-    "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "chatStats", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountGreeting", "homeAccountGreeting", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "saveAccountChatBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authEmail", "authEmailRow", "authUsername", "authUsernameRow", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authSwitchBtn"
+    "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "chatStats", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountGreeting", "homeAccountGreeting", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "saveAccountChatBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authEmail", "authEmailRow", "authUsername", "authUsernameRow", "authPasswordRow", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authResetBtn", "authSwitchBtn"
   ].forEach(function (id) { els[id] = $(id); });
 
   var convos = [];
@@ -358,18 +358,27 @@
   }
 
   function openAuth(mode) {
-    authMode = mode === "signup" ? "signup" : "login";
+    authMode = mode === "signup" || mode === "reset" || mode === "set-password" ? mode : "login";
     if (!els.authModal) return;
     els.authModal.hidden = false;
-    els.authModeLabel.textContent = authMode === "signup" ? "Create account" : "Log in";
-    els.authTitle.textContent = authMode === "signup" ? "Keep your place." : "Welcome back.";
-    els.authSubmitBtn.textContent = authMode === "signup" ? "Create account" : "Log in";
-    els.authSwitchBtn.textContent = authMode === "signup" ? "I already have an account" : "Create an account instead";
-    if (els.authUsernameRow) els.authUsernameRow.hidden = authMode !== "signup";
-    if (els.authUsername) els.authUsername.required = authMode === "signup";
+    var signup = authMode === "signup";
+    var reset = authMode === "reset";
+    var setPassword = authMode === "set-password";
+    els.authModeLabel.textContent = signup ? "Create account" : reset ? "Reset password" : setPassword ? "Choose a new password" : "Log in";
+    els.authTitle.textContent = signup ? "Keep your place." : reset ? "A fresh start." : setPassword ? "A fresh start." : "Welcome back.";
+    els.authSubmitBtn.textContent = signup ? "Create account" : reset ? "Send reset link" : setPassword ? "Update password" : "Log in";
+    els.authSwitchBtn.textContent = signup ? "I already have an account" : "Create an account instead";
+    if (els.authUsernameRow) els.authUsernameRow.hidden = !signup;
+    if (els.authUsername) els.authUsername.required = signup;
+    if (els.authEmailRow) els.authEmailRow.hidden = setPassword;
+    if (els.authEmail) els.authEmail.required = !setPassword;
+    if (els.authPasswordRow) els.authPasswordRow.hidden = reset;
+    if (els.authPassword) { els.authPassword.required = !reset; els.authPassword.autocomplete = setPassword ? "new-password" : "current-password"; }
+    if (els.authResetBtn) els.authResetBtn.hidden = signup || reset || setPassword;
     if (els.authEmail) els.authEmail.focus();
-    els.confirmPasswordRow.hidden = authMode !== "signup";
-    els.authConfirmPassword.required = authMode === "signup";
+    els.confirmPasswordRow.hidden = !(signup || setPassword);
+    els.authConfirmPassword.required = signup || setPassword;
+    els.authError.className = "form-error";
     els.authError.hidden = true;
     if (els.authEmail) els.authEmail.focus(); else els.authUsername.focus();
   }
@@ -837,12 +846,17 @@
   if (els.saveAccountChatBtn) els.saveAccountChatBtn.addEventListener("click", saveAccountChat);
   if (els.authCloseBtn) els.authCloseBtn.addEventListener("click", closeAuth);
   if (els.authSwitchBtn) els.authSwitchBtn.addEventListener("click", function () { openAuth(authMode === "signup" ? "login" : "signup"); });
+  if (els.authResetBtn) els.authResetBtn.addEventListener("click", function () { openAuth("reset"); });
   if (els.authForm) els.authForm.addEventListener("submit", async function (event) {
     event.preventDefault();
     if (els.authSubmitBtn) els.authSubmitBtn.disabled = true;
     els.authError.hidden = true;
     try {
-      var data = await authRequest(authMode === "signup" ? "/api/auth/signup" : "/api/auth/login", { email: els.authEmail ? els.authEmail.value : "", username: els.authUsername.value, password: els.authPassword.value, confirmPassword: els.authConfirmPassword.value });
+      var path = authMode === "signup" ? "/api/auth/signup" : authMode === "reset" ? "/api/auth/reset-request" : authMode === "set-password" ? "/api/auth/update-password" : "/api/auth/login";
+      var hash = new URLSearchParams(String(window.location.hash || "").replace(/^#/, ""));
+      var data = await authRequest(path, { email: els.authEmail ? els.authEmail.value : "", username: els.authUsername.value, password: els.authPassword.value, confirmPassword: els.authConfirmPassword.value, token: authMode === "set-password" ? hash.get("access_token") : undefined });
+      if (authMode === "reset") { els.authError.textContent = data.message || "If that email has an account, a reset link is on its way."; els.authError.className = "form-success"; els.authError.hidden = false; return; }
+      if (authMode === "set-password") { window.history.replaceState({}, document.title, window.location.pathname + window.location.search); closeAuth(); showResponseStatus(data.message || "Password updated. You can now log in.", false); return; }
       accountUser = data.user;
       if (!accountUser) { els.authError.textContent = data.message || "Check your email to confirm your account."; els.authError.hidden = false; return; }
       // Clear credentials before closing so they are not retained in the DOM
@@ -1167,6 +1181,10 @@
   renderThread();
   renderHistory();
   renderAccount();
+  try {
+    var authHash = new URLSearchParams(String(window.location.hash || "").replace(/^#/, ""));
+    if (authHash.get("type") === "recovery" && authHash.get("access_token")) setTimeout(function () { openAuth("set-password"); }, 0);
+  } catch (_) {}
   if (typeof window !== "undefined" && window.location && window.location.origin) {
     authRequest("/api/auth/me").then(function (data) { accountUser = data && data.authenticated ? data.user : null; renderAccount(); if (accountUser) loadAccountChats(); }).catch(function () { renderAccount(); });
   }

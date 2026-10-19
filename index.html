@@ -181,11 +181,12 @@
       <form id="authForm" autocomplete="on">
         <div id="authEmailRow"><label for="authEmail">Email</label><input id="authEmail" name="email" type="email" autocomplete="email" required maxlength="254" /></div>
         <div id="authUsernameRow"><label for="authUsername">Username</label><input id="authUsername" name="username" autocomplete="username" required minlength="3" maxlength="32" pattern="[A-Za-z0-9_-]{3,32}" /></div>
-        <label for="authPassword">Password</label><input id="authPassword" name="password" type="password" autocomplete="current-password" required minlength="8" maxlength="200" />
+        <div id="authPasswordRow"><label for="authPassword">Password</label><input id="authPassword" name="password" type="password" autocomplete="current-password" required minlength="8" maxlength="200" /></div>
         <div id="confirmPasswordRow" hidden><label for="authConfirmPassword">Confirm password</label><input id="authConfirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="200" /></div>
         <p class="form-error" id="authError" role="alert" hidden></p>
         <button class="btn btn-primary" id="authSubmitBtn" type="submit">Log in</button>
       </form>
+      <button class="link-btn auth-reset" id="authResetBtn" type="button">Forgot your password?</button>
       <button class="link-btn auth-switch" id="authSwitchBtn" type="button">Create an account instead</button>
     </section>
   </div>
@@ -255,8 +256,8 @@
     </div>
   </div>
 
-  <script src="responder.js?v=20261018"></script>
-  <script src="safety.js?v=20261018"></script>
-  <script src="app.js?v=20261018"></script>
+  <script src="responder.js?v=20261019"></script>
+  <script src="safety.js?v=20261019"></script>
+  <script src="app.js?v=20261019"></script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 
 // Bump this whenever the app shell changes so clients do not stay on an old
 // cached JavaScript bundle after an update.
-const CACHE = "back-to-center-shell-v13";
+const CACHE = "back-to-center-shell-v14";
 const SHELL = ["/", "/index.html", "/styles.css", "/app.js", "/responder.js", "/safety.js", "/manifest.json"];
 
 self.addEventListener("install", (event) => {

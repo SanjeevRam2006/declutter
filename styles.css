@@ -166,6 +166,8 @@ body.focus-mode .focus-screen[hidden] { display: block !important; }
 .auth-modal input { width: 100%; min-height: 48px; margin-bottom: 6px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-soft); color: var(--ink); font: inherit; }
 .auth-modal input:focus { border-color: var(--lav); outline: 3px solid color-mix(in srgb, var(--lav) 24%, transparent); }
 .auth-modal .btn-primary { width: 100%; min-height: 50px; margin-top: 8px; }
+.auth-reset { display: block; margin: 14px auto 0; font-size: .82rem; }
+.form-success { margin: 8px 0 0; color: var(--lav-deep); font-size: .88rem; }
 .auth-switch { margin-top: 18px; color: var(--lav-deep); font-weight: 700; }
 body[data-theme="night"] .auth-modal input { background: #302c3b; color: var(--ink); border-color: #514866; }
 body[data-theme="night"] .auth-modal { background: #282532; }

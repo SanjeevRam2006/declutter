@@ -27,7 +27,7 @@ The server does not require Ollama. If the configured port is occupied, change `
 
 The hosted version uses the Vercel Node functions in `api/chat.js` and `api/health.js`. Browser chat history remains local to each browser, while DeepInfra requests run through the server-side function so the API key is never sent to the browser.
 
-Hosted accounts use Supabase. Configure `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` in Vercel, then run `supabase-schema.sql` once in the Supabase SQL editor. Signup uses email, username, password, and confirmation; login uses email and password. Anonymous chats remain browser-local until a user explicitly saves one to their account.
+Hosted accounts use Supabase. Configure `SUPABASE_URL` (the project URL, not the dashboard URL), `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and `PUBLIC_APP_URL` (the deployed origin) in Vercel, then run `supabase-schema.sql` once in the Supabase SQL editor. Signup uses email, username, password, and confirmation; login uses email and password; the account dialog also supports password-reset links. Anonymous chats remain browser-local until a user explicitly saves one to their account.
 
 To deploy from GitHub:
 
@@ -38,8 +38,12 @@ To deploy from GitHub:
    - `DEEPINFRA_API_KEY` — your secret DeepInfra key.
    - `DEEPINFRA_MODEL` — for example `meta-llama/Llama-3.3-70B-Instruct-Turbo`.
    - `AI_TIMEOUT_MS` — for example `30000`.
+   - `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` — the Supabase project URL and API keys.
+   - `PUBLIC_APP_URL` — the exact deployed origin, for example `https://declutter-fawn.vercel.app`.
 
 4. Redeploy after saving the variables and open the generated `.vercel.app` URL.
+
+In Supabase Authentication URL Configuration, set the Site URL to the same `PUBLIC_APP_URL` and add its wildcard origin (for example `https://declutter-fawn.vercel.app/**`) as an allowed redirect URL. Password reset and email confirmation links use this origin.
 
 Do not commit `.env`, `data/users.json`, or API keys. Vercel deployments do not need `npm start`; the platform discovers the `api/` functions and serves the static files directly.
 
