@@ -12,7 +12,7 @@
   ["homeView", "homeEntry", "homeInput", "chatView", "thread", "promptChips", "composer", "composerInput", "sendBtn",
     "emptyError", "storageWarning", "responseStatus", "accountNudge", "nudgeSignup", "nudgeDismiss", "retryBtn",
     "historyList", "historyCount", "emptyHistory", "deleteAllBtn", "newChatBtn", "brandHome",
-    "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "chatStats", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "saveAccountChatBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authEmail", "authEmailRow", "authUsername", "authUsernameRow", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authSwitchBtn"
+    "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "chatStats", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountGreeting", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "saveAccountChatBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authEmail", "authEmailRow", "authUsername", "authUsernameRow", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authSwitchBtn"
   ].forEach(function (id) { els[id] = $(id); });
 
   var convos = [];
@@ -336,6 +336,10 @@
   function renderAccount() {
     var c = current();
     var userTurnCount = c ? c.messages.filter(function (m) { return m.role === "user"; }).length : 0;
+    if (els.accountGreeting) {
+      els.accountGreeting.hidden = !accountUser;
+      els.accountGreeting.textContent = accountUser ? "Hi, " + accountUser.username : "";
+    }
     if (els.accountStatus) els.accountStatus.textContent = accountUser ? "Signed in as " + accountUser.username + ". Save selected chats across sessions." : (c && c.messages.length >= 2 ? "This chat is local. Save it to your account when you are ready." : "Save selected chats across sessions when you choose.");
     if (els.loginBtn) els.loginBtn.hidden = Boolean(accountUser);
     if (els.signupBtn) els.signupBtn.hidden = Boolean(accountUser);
