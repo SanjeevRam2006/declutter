@@ -399,6 +399,7 @@ body.chat-view .msg { scroll-margin-bottom: 250px; }
 .jump-latest:hover { background: var(--lav-soft); }
 .msg { max-width: 85%; }
 .msg p { margin: 0; font: 400 0.98rem/1.5 "DM Sans", ui-sans-serif, system-ui, sans-serif; letter-spacing: -0.006em; }
+.msg-assistant p { font-family: "Fraunces", ui-serif, Georgia, serif; font-weight: 500; letter-spacing: -0.01em; }
 .message-time { display: block; margin-top: 5px; font: 400 0.68rem/1.2 "DM Sans", ui-sans-serif, system-ui, sans-serif; opacity: 0.62; font-variant-numeric: tabular-nums; }
 body.hide-timestamps .message-time { display: none; }
 .msg-user {
@@ -408,8 +409,9 @@ body.hide-timestamps .message-time { display: none; }
 .msg-assistant {
   align-self: flex-start; background: #fff; color: var(--ink-soft);
   border: 1px solid var(--line-soft); border-radius: 16px 16px 16px 4px;
-  padding: 11px 15px; box-shadow: var(--shadow-sm); font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif; font-weight: 400;
+  padding: 11px 15px; box-shadow: var(--shadow-sm); font-family: "Fraunces", ui-serif, Georgia, serif; font-weight: 500;
 }
+.msg-assistant .message-time, .msg-assistant .reply-source, .msg-assistant .reply-meta, .msg-assistant .message-action { font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif; }
 .msg-assistant.typing { color: var(--ink-faint); letter-spacing: 3px; }
 .reply-source { display: block; margin-top: 7px; font-size: 0.75rem; font-weight: 600; color: var(--lav-deep); }
 .reply-meta { display: block; margin-top: 5px; font-size: 0.68rem; color: var(--ink-faint); }
