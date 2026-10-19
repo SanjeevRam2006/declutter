@@ -10,7 +10,7 @@
 
   var els = {};
   ["homeView", "homeEntry", "homeInput", "chatView", "thread", "promptChips", "composer", "composerInput", "sendBtn",
-    "emptyError", "storageWarning", "responseStatus", "accountNudge", "nudgeSignup", "nudgeDismiss", "retryBtn",
+    "emptyError", "storageWarning", "responseStatus", "accountNudge", "nudgeSignup", "nudgeDismiss", "retryBtn", "privacyBtn", "privacyModal", "privacyCloseBtn",
     "historyList", "historyCount", "emptyHistory", "deleteAllBtn", "newChatBtn", "brandHome",
     "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "chatStats", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountGreeting", "homeAccountGreeting", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "headerAccountBtn", "headerAccountLabel", "saveAccountChatBtn", "syncAccountChatsBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authEmail", "authEmailRow", "authUsername", "authUsernameRow", "authPasswordRow", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authResetBtn", "authSwitchBtn", "profileModal", "profileTitle", "profileCloseBtn", "profileUsername", "profileEmail", "changePasswordToggle", "changePasswordForm", "currentPassword", "newPassword", "confirmNewPassword", "profileError", "changePasswordBtn", "profileLogoutBtn"
   ].forEach(function (id) { els[id] = $(id); });
@@ -409,6 +409,13 @@
 
   function closeProfile() { if (els.profileModal) els.profileModal.hidden = true; }
 
+  function openPrivacy() {
+    if (!els.privacyModal) return;
+    els.privacyModal.hidden = false;
+    if (els.privacyCloseBtn) els.privacyCloseBtn.focus();
+  }
+  function closePrivacy() { if (els.privacyModal) els.privacyModal.hidden = true; }
+
   async function logoutAccount() {
     try { await authRequest("/api/auth/logout", {}); } catch (_) {}
     accountUser = null; closeProfile(); renderAccount(); showResponseStatus("You are logged out. Your local chats are still here.", false);
@@ -679,7 +686,7 @@
   if (document.addEventListener) document.addEventListener("keydown", function (e) {
     var active = document.activeElement;
     var typingTarget = active && /^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName || "");
-    if (e.key === "Escape") { closeShortcuts(); closeProfile(); closeAuth(); return; }
+    if (e.key === "Escape") { closeShortcuts(); closeProfile(); closePrivacy(); closeAuth(); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); els.composerInput.focus(); return; }
     if (typingTarget) return;
     if (e.key === "/" && els.historySearch) { e.preventDefault(); els.historySearch.focus(); return; }
@@ -917,6 +924,9 @@
   });
   if (els.profileCloseBtn) els.profileCloseBtn.addEventListener("click", closeProfile);
   if (els.profileLogoutBtn) els.profileLogoutBtn.addEventListener("click", logoutAccount);
+  if (els.privacyBtn) els.privacyBtn.addEventListener("click", openPrivacy);
+  if (els.privacyCloseBtn) els.privacyCloseBtn.addEventListener("click", closePrivacy);
+  if (els.privacyModal) els.privacyModal.addEventListener("click", function (event) { if (event.target === els.privacyModal) closePrivacy(); });
   if (els.changePasswordToggle) els.changePasswordToggle.addEventListener("click", function () {
     var open = els.changePasswordForm.hidden;
     els.changePasswordForm.hidden = !open;
@@ -1310,7 +1320,7 @@
     }
   } catch (_) {}
   if (typeof navigator !== "undefined" && navigator.serviceWorker) {
-    navigator.serviceWorker.register("/sw.js?v=20261022").catch(function () { /* installability is optional */ });
+    navigator.serviceWorker.register("/sw.js?v=20261023").catch(function () { /* installability is optional */ });
   }
   if (typeof window !== "undefined" && window.addEventListener) {
     window.addEventListener("beforeinstallprompt", function (event) {

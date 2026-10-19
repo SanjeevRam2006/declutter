@@ -193,6 +193,12 @@ body.focus-mode #focusBtn { border-color: rgba(190, 202, 255, .8); background: r
 .profile-logout { width: 100%; justify-content: center; margin-top: 18px; }
 body[data-theme="night"] .profile-modal { background: #282532; }
 body[data-theme="night"] .profile-identity, body[data-theme="night"] .profile-modal input { background: #302c3b; color: var(--ink); border-color: #514866; }
+.privacy-dialog { width: min(100%, 520px); padding: 30px; border: 1px solid color-mix(in srgb, var(--lav) 34%, var(--line)); background: color-mix(in srgb, var(--card) 96%, var(--lav-mist)); box-shadow: 0 30px 100px rgba(18, 12, 35, .4); }
+.privacy-dialog .card-head { align-items: flex-start; margin-bottom: 18px; }
+.privacy-dialog h2 { margin-top: 8px; font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.5rem); line-height: 1; letter-spacing: -.04em; }
+.privacy-list { display: grid; gap: 12px; margin: 0; padding-left: 20px; color: var(--ink-soft); font-size: .92rem; }
+.privacy-list li::marker { color: var(--lav); }
+body[data-theme="night"] .privacy-dialog { background: #282532; }
 .auth-switch { margin-top: 18px; color: var(--lav-deep); font-weight: 700; }
 body[data-theme="night"] .auth-modal input { background: #302c3b; color: var(--ink); border-color: #514866; }
 body[data-theme="night"] .auth-modal { background: #282532; }
@@ -316,6 +322,9 @@ textarea.shake { animation: shake 0.35s ease; border-color: var(--danger); }
 }
 .response-status { color: var(--lav-deep); font-size: 0.88rem; margin: 10px 0 0; }
 .response-status.error { color: var(--danger); }
+.privacy-row { display: flex; justify-content: flex-end; margin-top: 12px; }
+.privacy-row .link-btn { color: var(--ink-faint); font-size: .78rem; }
+.privacy-row .link-btn:hover { color: var(--lav-deep); }
 .health-ok { color: var(--sage) !important; }
 .health-error { color: var(--danger) !important; }
 .retry-btn { margin-top: 8px; }
@@ -370,7 +379,6 @@ body.hide-timestamps .message-time { display: none; }
 #composer { position: sticky; bottom: 0; z-index: 6; padding: 10px 0 12px; background: linear-gradient(to bottom, color-mix(in srgb, var(--card) 0%, transparent), color-mix(in srgb, var(--card) 94%, transparent) 24%, var(--card) 58%); }
 #composer textarea { height: 96px; min-height: 96px; max-height: 96px; margin-top: 10px; overflow-y: auto; }
 .composer-row { margin-top: 10px; justify-content: flex-end; }
-.honesty-note { font-size: 0.8rem; color: var(--ink-faint); margin: 12px 0 0; }
 
 /* history */
 .history-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; padding-bottom: 16px; border-bottom: 1px solid var(--line-soft); }
@@ -449,7 +457,6 @@ body.focus-mode .focus-panel { min-height: min(680px, calc(100vh - 170px)); disp
 .focus-controls .btn { min-width: 120px; justify-content: center; }
 .focus-note { color: var(--ink-faint); font-size: .8rem; margin: 20px 0 0; }
 
-.site-footer { border-top: 1px solid var(--line-soft); padding: 22px 0 34px; color: var(--ink-faint); font-size: 0.88rem; text-align: center; }
 .shortcut-overlay { position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; padding: 20px; background: rgba(43, 42, 40, 0.38); }
 .shortcut-dialog { width: min(100%, 440px); background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 20px 70px rgba(43, 42, 40, 0.25); padding: 22px; }
 .shortcut-list { display: grid; grid-template-columns: auto 1fr; gap: 12px 16px; margin: 4px 0 0; align-items: center; color: var(--ink-soft); }

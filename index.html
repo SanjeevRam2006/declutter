@@ -106,7 +106,7 @@
         <button class="btn btn-ghost btn-sm retry-btn" id="retryBtn" type="button" hidden>Try DeepInfra again</button>
         <button class="btn btn-danger-ghost btn-sm current-delete" id="deleteCurrentBtn" type="button" hidden>Delete current chat</button>
         <p class="storage-warning" id="storageWarning" role="alert" hidden></p>
-        <p class="honesty-note">AI replies send this conversation to DeepInfra for processing. Your history is saved in this browser; if DeepInfra is unavailable, a basic responder can reply without it.</p>
+        <div class="privacy-row"><button class="link-btn" id="privacyBtn" type="button">Privacy &amp; data</button></div>
       </section>
     </div>
 
@@ -249,11 +249,17 @@
     </section>
   </main>
 
-  <footer class="site-footer">
-    <div class="wrap">
-      <p>Declutter AI · AI replies are processed by DeepInfra.</p>
-    </div>
-  </footer>
+  <div class="modal-backdrop" id="privacyModal" hidden>
+    <section class="privacy-dialog card" role="dialog" aria-modal="true" aria-labelledby="privacyTitle">
+      <div class="card-head"><div><p class="step">Privacy &amp; data</p><h2 id="privacyTitle">What happens to your words.</h2></div><button class="btn btn-ghost btn-sm" id="privacyCloseBtn" type="button" aria-label="Close privacy dialog">Close</button></div>
+      <ul class="privacy-list">
+        <li>AI replies send the current conversation to DeepInfra for processing.</li>
+        <li>Chats stay in this browser by default. Account-synced chats are stored with your account.</li>
+        <li>Local browser history is not encrypted. Clearing site data can remove it.</li>
+        <li>This is a thinking companion, not a therapist or emergency service.</li>
+      </ul>
+    </section>
+  </div>
 
   <div class="shortcut-overlay" id="shortcutOverlay" hidden>
     <div class="shortcut-dialog" role="dialog" aria-modal="true" aria-labelledby="shortcutTitle">
@@ -272,8 +278,8 @@
     </div>
   </div>
 
-  <script src="responder.js?v=20261022"></script>
-  <script src="safety.js?v=20261022"></script>
-  <script src="app.js?v=20261022"></script>
+  <script src="responder.js?v=20261023"></script>
+  <script src="safety.js?v=20261023"></script>
+  <script src="app.js?v=20261023"></script>
 </body>
 </html>

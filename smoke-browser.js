@@ -75,6 +75,10 @@ async function main() {
     assert.ok(authLayout.top > 0 && authLayout.bottom < authLayout.viewport, "Auth dialog should be centered in the viewport");
     await evaluate("document.querySelector('#authCloseBtn').click()");
     assert.equal(await evaluate("getComputedStyle(document.querySelector('#authModal')).display"), "none", "Closed auth dialog should be visually hidden");
+    await evaluate("document.querySelector('#privacyBtn').click()");
+    assert.equal(await evaluate("document.querySelector('#privacyModal').hidden"), false, "Privacy dialog should open from the compact link");
+    await evaluate("document.querySelector('#privacyCloseBtn').click()");
+    assert.equal(await evaluate("document.querySelector('#privacyModal').hidden"), true, "Privacy dialog should close cleanly");
 
     for (const width of [320, 500, 768, 1024, 1440]) {
       await command("Emulation.setDeviceMetricsOverride", { width, height: 900, deviceScaleFactor: 1, mobile: width <= 500 });
