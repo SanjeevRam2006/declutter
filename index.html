@@ -34,7 +34,7 @@
         <button class="btn btn-ghost btn-sm" id="themeBtn" type="button" aria-pressed="false" title="Switch between day and night themes">Night theme</button>
         <button class="btn btn-ghost btn-sm" id="sidebarBtn" type="button" aria-expanded="false" title="Open chats and tools">Chats</button>
         <button class="btn btn-ghost btn-sm" id="focusBtn" type="button" aria-pressed="false" title="Open Focus Mode">Focus</button>
-        <button class="btn btn-primary btn-sm header-auth-btn" id="headerAccountBtn" type="button">Log in / Create account</button>
+        <button class="btn btn-ghost btn-sm header-auth-btn profile-trigger" id="headerAccountBtn" type="button"><span class="profile-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="3.25"></circle><path d="M5.5 19c.7-3.2 3-5 6.5-5s5.8 1.8 6.5 5"></path></svg></span><span id="headerAccountLabel">Log in / Create account</span></button>
       </nav>
     </div>
   </header>
@@ -194,7 +194,8 @@
     <section class="profile-modal card" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
       <div class="card-head"><div><p class="step">Your account</p><h2 id="profileTitle">Profile</h2></div><button class="btn btn-ghost btn-sm" id="profileCloseBtn" type="button" aria-label="Close profile dialog">Close</button></div>
       <div class="profile-identity"><strong id="profileUsername"></strong><span id="profileEmail"></span></div>
-      <form id="changePasswordForm" autocomplete="on">
+      <button class="btn btn-soft profile-password-toggle" id="changePasswordToggle" type="button" aria-expanded="false">Change password</button>
+      <form id="changePasswordForm" autocomplete="on" hidden>
         <h3>Change password</h3>
         <label for="newPassword">New password</label><input id="newPassword" type="password" autocomplete="new-password" minlength="8" maxlength="200" required />
         <label for="confirmNewPassword">Confirm new password</label><input id="confirmNewPassword" type="password" autocomplete="new-password" minlength="8" maxlength="200" required />
@@ -270,8 +271,8 @@
     </div>
   </div>
 
-  <script src="responder.js?v=20261020"></script>
-  <script src="safety.js?v=20261020"></script>
-  <script src="app.js?v=20261020"></script>
+  <script src="responder.js?v=20261021"></script>
+  <script src="safety.js?v=20261021"></script>
+  <script src="app.js?v=20261021"></script>
 </body>
 </html>

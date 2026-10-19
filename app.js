@@ -12,7 +12,7 @@
   ["homeView", "homeEntry", "homeInput", "chatView", "thread", "promptChips", "composer", "composerInput", "sendBtn",
     "emptyError", "storageWarning", "responseStatus", "accountNudge", "nudgeSignup", "nudgeDismiss", "retryBtn",
     "historyList", "historyCount", "emptyHistory", "deleteAllBtn", "newChatBtn", "brandHome",
-    "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "chatStats", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountGreeting", "homeAccountGreeting", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "headerAccountBtn", "saveAccountChatBtn", "syncAccountChatsBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authEmail", "authEmailRow", "authUsername", "authUsernameRow", "authPasswordRow", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authResetBtn", "authSwitchBtn", "profileModal", "profileTitle", "profileCloseBtn", "profileUsername", "profileEmail", "changePasswordForm", "newPassword", "confirmNewPassword", "profileError", "changePasswordBtn", "profileLogoutBtn"
+    "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "chatStats", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountGreeting", "homeAccountGreeting", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "headerAccountBtn", "headerAccountLabel", "saveAccountChatBtn", "syncAccountChatsBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authEmail", "authEmailRow", "authUsername", "authUsernameRow", "authPasswordRow", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authResetBtn", "authSwitchBtn", "profileModal", "profileTitle", "profileCloseBtn", "profileUsername", "profileEmail", "changePasswordToggle", "changePasswordForm", "newPassword", "confirmNewPassword", "profileError", "changePasswordBtn", "profileLogoutBtn"
   ].forEach(function (id) { els[id] = $(id); });
 
   var convos = [];
@@ -351,9 +351,7 @@
     if (els.logoutBtn) els.logoutBtn.hidden = !accountUser;
     if (els.headerAccountBtn) {
       els.headerAccountBtn.hidden = false;
-      els.headerAccountBtn.textContent = accountUser ? "Hi, " + accountUser.username : "Log in / Create account";
-      els.headerAccountBtn.classList.toggle("btn-primary", !accountUser);
-      els.headerAccountBtn.classList.toggle("btn-ghost", Boolean(accountUser));
+      if (els.headerAccountLabel) els.headerAccountLabel.textContent = accountUser ? accountUser.username : "Log in / Create account";
       els.headerAccountBtn.setAttribute("aria-label", accountUser ? "Open profile for " + accountUser.username : "Log in or create an account");
     }
     if (els.saveAccountChatBtn) els.saveAccountChatBtn.hidden = !accountUser || !c || !c.messages.length;
@@ -401,6 +399,8 @@
     if (els.profileUsername) els.profileUsername.textContent = "@" + (accountUser.username || "");
     if (els.profileEmail) els.profileEmail.textContent = accountUser.email || "";
     if (els.profileError) { els.profileError.hidden = true; els.profileError.textContent = ""; }
+    if (els.changePasswordForm) els.changePasswordForm.hidden = true;
+    if (els.changePasswordToggle) { els.changePasswordToggle.hidden = false; els.changePasswordToggle.setAttribute("aria-expanded", "false"); }
     if (els.newPassword) els.newPassword.value = "";
     if (els.confirmNewPassword) els.confirmNewPassword.value = "";
     if (els.newPassword) els.newPassword.focus();
@@ -916,6 +916,12 @@
   });
   if (els.profileCloseBtn) els.profileCloseBtn.addEventListener("click", closeProfile);
   if (els.profileLogoutBtn) els.profileLogoutBtn.addEventListener("click", logoutAccount);
+  if (els.changePasswordToggle) els.changePasswordToggle.addEventListener("click", function () {
+    var open = els.changePasswordForm.hidden;
+    els.changePasswordForm.hidden = !open;
+    els.changePasswordToggle.setAttribute("aria-expanded", open ? "true" : "false");
+    if (open && els.newPassword) els.newPassword.focus();
+  });
   if (els.profileModal) els.profileModal.addEventListener("click", function (event) { if (event.target === els.profileModal) closeProfile(); });
   if (els.changePasswordForm) els.changePasswordForm.addEventListener("submit", async function (event) {
     event.preventDefault();
@@ -1301,7 +1307,7 @@
     }
   } catch (_) {}
   if (typeof navigator !== "undefined" && navigator.serviceWorker) {
-    navigator.serviceWorker.register("/sw.js?v=20261020").catch(function () { /* installability is optional */ });
+    navigator.serviceWorker.register("/sw.js?v=20261021").catch(function () { /* installability is optional */ });
   }
   if (typeof window !== "undefined" && window.addEventListener) {
     window.addEventListener("beforeinstallprompt", function (event) {
