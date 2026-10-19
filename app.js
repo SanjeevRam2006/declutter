@@ -12,7 +12,7 @@
   ["homeView", "homeEntry", "homeInput", "chatView", "thread", "promptChips", "composer", "composerInput", "sendBtn",
     "emptyError", "storageWarning", "responseStatus", "accountNudge", "nudgeSignup", "nudgeDismiss", "retryBtn",
     "historyList", "historyCount", "emptyHistory", "deleteAllBtn", "newChatBtn", "brandHome",
-    "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "chatStats", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountGreeting", "homeAccountGreeting", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "saveAccountChatBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authEmail", "authEmailRow", "authUsername", "authUsernameRow", "authPasswordRow", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authResetBtn", "authSwitchBtn"
+    "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "chatStats", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountGreeting", "homeAccountGreeting", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "saveAccountChatBtn", "syncAccountChatsBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authEmail", "authEmailRow", "authUsername", "authUsernameRow", "authPasswordRow", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authResetBtn", "authSwitchBtn"
   ].forEach(function (id) { els[id] = $(id); });
 
   var convos = [];
@@ -336,6 +336,7 @@
   function renderAccount() {
     var c = current();
     var userTurnCount = c ? c.messages.filter(function (m) { return m.role === "user"; }).length : 0;
+    var unsyncedCount = convos.filter(function (item) { return item && item.messages && item.messages.length && String(item.id).indexOf("account_") !== 0; }).length;
     if (els.accountGreeting) {
       els.accountGreeting.hidden = !accountUser;
       els.accountGreeting.textContent = accountUser ? "Hi, " + accountUser.username : "";
@@ -344,11 +345,12 @@
       els.homeAccountGreeting.hidden = !accountUser;
       els.homeAccountGreeting.textContent = accountUser ? "Hi, " + accountUser.username : "";
     }
-    if (els.accountStatus) els.accountStatus.textContent = accountUser ? "Signed in as " + accountUser.username + ". Save selected chats across sessions." : (c && c.messages.length >= 2 ? "This chat is local. Save it to your account when you are ready." : "Save selected chats across sessions when you choose.");
+    if (els.accountStatus) els.accountStatus.textContent = accountUser ? (unsyncedCount ? "Signed in as " + accountUser.username + ". " + unsyncedCount + " local chat" + (unsyncedCount === 1 ? " is" : "s are") + " ready to sync." : "Signed in as " + accountUser.username + ". Your saved chats follow you across browsers.") : (c && c.messages.length >= 2 ? "This chat is local. Save it to your account when you are ready." : "Save selected chats across sessions when you choose.");
     if (els.loginBtn) els.loginBtn.hidden = Boolean(accountUser);
     if (els.signupBtn) els.signupBtn.hidden = Boolean(accountUser);
     if (els.logoutBtn) els.logoutBtn.hidden = !accountUser;
     if (els.saveAccountChatBtn) els.saveAccountChatBtn.hidden = !accountUser || !c || !c.messages.length;
+    if (els.syncAccountChatsBtn) els.syncAccountChatsBtn.hidden = !accountUser || !unsyncedCount;
     var dismissed = localStorage.getItem("back_to_center_account_nudge_dismissed_v1") === "1";
     if (els.accountNudge) els.accountNudge.hidden = Boolean(accountUser) || !c || userTurnCount < ACCOUNT_PROMPT_USER_TURNS || authPromptShown || dismissed;
     if (accountPromptReady && !accountUser && !authPromptShown && !dismissed && els.authModal && els.authModal.hidden) {
@@ -443,12 +445,38 @@
     var c = current();
     if (!accountUser || !c || !c.messages.length) return;
     try {
-      await authRequest("/api/account/chats", { conversation: { id: c.id, title: titleFor(c), messages: c.messages.map(function (m) { return { role: m.role, text: m.text, at: m.at }; }) } });
+      var accountChatId = String(c.id).indexOf("account_") === 0 ? String(c.id).slice("account_".length) : c.id;
+      await authRequest("/api/account/chats", { conversation: { id: accountChatId, title: titleFor(c), messages: c.messages.map(function (m) { return { role: m.role, text: m.text, at: m.at }; }) } });
+      if (String(c.id).indexOf("account_") !== 0) { c.id = "account_" + c.id; currentId = c.id; persistConvos(convos); renderHistory(); }
+      renderAccount();
       showResponseStatus("Saved to your account. The browser copy remains here too.", false);
     } catch (err) {
       if (err.code === "authentication_required") { accountUser = null; renderAccount(); }
       showResponseStatus(err.message || "Could not save this chat.", true);
     }
+  }
+
+  async function syncLocalChats() {
+    if (!accountUser) return;
+    var localChats = convos.filter(function (item) { return item && item.messages && item.messages.length && String(item.id).indexOf("account_") !== 0; });
+    if (!localChats.length) { renderAccount(); return; }
+    if (!window.confirm("Sync " + localChats.length + " local chat" + (localChats.length === 1 ? "" : "s") + " to your account?")) return;
+    if (els.syncAccountChatsBtn) els.syncAccountChatsBtn.disabled = true;
+    try {
+      for (var i = 0; i < localChats.length; i += 1) {
+        var item = localChats[i];
+        var originalId = item.id;
+        await authRequest("/api/account/chats", { conversation: { id: item.id, title: titleFor(item), messages: item.messages.map(function (m) { return { role: m.role, text: m.text, at: m.at }; }) } });
+        item.id = "account_" + originalId;
+        if (currentId === originalId) currentId = item.id;
+      }
+      persistConvos(convos);
+      await loadAccountChats();
+      renderAccount();
+      showResponseStatus("Your local chats are now available on this account.", false);
+    } catch (err) {
+      showResponseStatus(err.message || "Could not sync all local chats.", true);
+    } finally { if (els.syncAccountChatsBtn) els.syncAccountChatsBtn.disabled = false; }
   }
 
   function fallbackNotice(reason) {
@@ -861,6 +889,7 @@
     accountUser = null; renderAccount(); showResponseStatus("You are logged out. Your local chats are still here.", false);
   });
   if (els.saveAccountChatBtn) els.saveAccountChatBtn.addEventListener("click", saveAccountChat);
+  if (els.syncAccountChatsBtn) els.syncAccountChatsBtn.addEventListener("click", syncLocalChats);
   if (els.authCloseBtn) els.authCloseBtn.addEventListener("click", closeAuth);
   if (els.authSwitchBtn) els.authSwitchBtn.addEventListener("click", function () { openAuth(authMode === "signup" ? "login" : "signup"); });
   if (els.authResetBtn) els.authResetBtn.addEventListener("click", function () { openAuth("reset"); });
