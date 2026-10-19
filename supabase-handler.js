@@ -6,7 +6,7 @@ const COOKIE = "declutter_supabase_access";
 const MAX_BODY = 256 * 1024;
 
 function configFromEnv(env = process.env) {
-  const rawUrl = String(env.SUPABASE_URL || "https://uvlabtixfujklzklfeaw.supabase.co").trim();
+  const rawUrl = String(env.SUPABASE_URL || "https://uvlabtixfujklzklfeaw.supabase.co").trim().replace(/^['"]|['"]$/g, "");
   const dashboardMatch = rawUrl.match(/supabase\.com\/dashboard\/project\/([a-z0-9]+)(?:[/?#].*)?$/i);
   const projectUrl = dashboardMatch ? `https://${dashboardMatch[1]}.supabase.co` : rawUrl;
   return {
@@ -176,6 +176,13 @@ async function handleChats(req, res, route, config) {
 async function handleSupabase(req, res) {
   const config = configFromEnv();
   if (!config.anon) return false;
+  const requestPath = new URL(req.url || "/", "http://localhost").pathname;
+  if (requestPath === "/api/health" && req.method === "GET") {
+    let host = "invalid";
+    try { host = new URL(config.url).host; } catch (_) {}
+    json(res, 200, { ok: true, aiConfigured: Boolean(process.env.DEEPINFRA_API_KEY), supabaseConfigured: true, supabaseHost: host, supabaseServiceConfigured: Boolean(config.service) });
+    return true;
+  }
   const authRoute = normalizeRoute(req, "/api/auth");
   const accountRoute = normalizeRoute(req, "/api/account");
   if (authRoute === "/api/auth/me" || authRoute === "/api/auth/logout" || authRoute.includes("/api/auth/")) return handleAuth(req, res, authRoute, config);
