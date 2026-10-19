@@ -105,7 +105,7 @@ var CASES = [
     run: function (t) {
       ["im chill asl", "I'm fine."].forEach(function (input) {
         var r = generateReply(input, {});
-        t.ok(/good to hear/i.test(r.text), "accepts " + input + " plainly");
+        t.ok(/what's on your mind/i.test(r.text), "accepts " + input + " plainly");
         t.ok(!/hidden|admit|denial|not okay|overwhelm|sad|anxious|distress/i.test(r.text), "does not invent distress");
       });
     }

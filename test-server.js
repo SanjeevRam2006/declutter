@@ -77,7 +77,7 @@ test("self-reports and corrections take precedence over prior assistant assumpti
   ]);
   assert.equal(happy.status, 200);
   assert.equal(happy.data.source, "guardrail");
-  assert.match(happy.data.text, /good to hear/i);
+  assert.match(happy.data.text, /what's on your mind/i);
   assert.equal(calls.length, 0);
 
   const correction = await chat(base, [{ role: "assistant", content: "You sound overwhelmed." }, { role: "user", content: "No, that's not what I meant." }]);

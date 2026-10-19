@@ -161,7 +161,7 @@
     };
     if (hasPositiveSelfReport(normalized)) return {
       kind: "self-report",
-      text: "Good to hear. What do you feel like talking about?",
+      text: "Got it. What's on your mind?",
       questionKey: null
     };
     return null;
@@ -197,7 +197,7 @@
 
     casual: function () {
       return {
-        text: "Good to hear. What do you feel like talking about?",
+        text: "Hey. What's on your mind?",
         questionKey: null
       };
     },
