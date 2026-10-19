@@ -12,7 +12,7 @@
   ["homeView", "homeEntry", "homeInput", "chatView", "thread", "promptChips", "composer", "composerInput", "sendBtn",
     "emptyError", "storageWarning", "responseStatus", "accountNudge", "nudgeSignup", "nudgeDismiss", "retryBtn",
     "historyList", "historyCount", "emptyHistory", "deleteAllBtn", "newChatBtn", "brandHome",
-    "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "chatStats", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountGreeting", "homeAccountGreeting", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "headerLoginBtn", "headerSignupBtn", "headerLogoutBtn", "saveAccountChatBtn", "syncAccountChatsBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authEmail", "authEmailRow", "authUsername", "authUsernameRow", "authPasswordRow", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authResetBtn", "authSwitchBtn"
+    "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "chatStats", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountGreeting", "homeAccountGreeting", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "headerAccountBtn", "saveAccountChatBtn", "syncAccountChatsBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authEmail", "authEmailRow", "authUsername", "authUsernameRow", "authPasswordRow", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authResetBtn", "authSwitchBtn", "profileModal", "profileTitle", "profileCloseBtn", "profileUsername", "profileEmail", "changePasswordForm", "newPassword", "confirmNewPassword", "profileError", "changePasswordBtn", "profileLogoutBtn"
   ].forEach(function (id) { els[id] = $(id); });
 
   var convos = [];
@@ -349,9 +349,13 @@
     if (els.loginBtn) els.loginBtn.hidden = Boolean(accountUser);
     if (els.signupBtn) els.signupBtn.hidden = Boolean(accountUser);
     if (els.logoutBtn) els.logoutBtn.hidden = !accountUser;
-    if (els.headerLoginBtn) els.headerLoginBtn.hidden = Boolean(accountUser);
-    if (els.headerSignupBtn) els.headerSignupBtn.hidden = Boolean(accountUser);
-    if (els.headerLogoutBtn) els.headerLogoutBtn.hidden = !accountUser;
+    if (els.headerAccountBtn) {
+      els.headerAccountBtn.hidden = false;
+      els.headerAccountBtn.textContent = accountUser ? "Hi, " + accountUser.username : "Log in / Create account";
+      els.headerAccountBtn.classList.toggle("btn-primary", !accountUser);
+      els.headerAccountBtn.classList.toggle("btn-ghost", Boolean(accountUser));
+      els.headerAccountBtn.setAttribute("aria-label", accountUser ? "Open profile for " + accountUser.username : "Log in or create an account");
+    }
     if (els.saveAccountChatBtn) els.saveAccountChatBtn.hidden = !accountUser || !c || !c.messages.length;
     if (els.syncAccountChatsBtn) els.syncAccountChatsBtn.hidden = !accountUser || !unsyncedCount;
     var dismissed = localStorage.getItem("back_to_center_account_nudge_dismissed_v1") === "1";
@@ -390,6 +394,24 @@
   }
 
   function closeAuth() { if (els.authModal) els.authModal.hidden = true; }
+
+  function openProfile() {
+    if (!accountUser || !els.profileModal) return;
+    els.profileModal.hidden = false;
+    if (els.profileUsername) els.profileUsername.textContent = "@" + (accountUser.username || "");
+    if (els.profileEmail) els.profileEmail.textContent = accountUser.email || "";
+    if (els.profileError) { els.profileError.hidden = true; els.profileError.textContent = ""; }
+    if (els.newPassword) els.newPassword.value = "";
+    if (els.confirmNewPassword) els.confirmNewPassword.value = "";
+    if (els.newPassword) els.newPassword.focus();
+  }
+
+  function closeProfile() { if (els.profileModal) els.profileModal.hidden = true; }
+
+  async function logoutAccount() {
+    try { await authRequest("/api/auth/logout", {}); } catch (_) {}
+    accountUser = null; closeProfile(); renderAccount(); showResponseStatus("You are logged out. Your local chats are still here.", false);
+  }
 
   async function authRequest(path, payload, method) {
     var response;
@@ -656,7 +678,7 @@
   if (document.addEventListener) document.addEventListener("keydown", function (e) {
     var active = document.activeElement;
     var typingTarget = active && /^(INPUT|TEXTAREA|SELECT)$/.test(active.tagName || "");
-    if (e.key === "Escape") { closeShortcuts(); return; }
+    if (e.key === "Escape") { closeShortcuts(); closeProfile(); closeAuth(); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); els.composerInput.focus(); return; }
     if (typingTarget) return;
     if (e.key === "/" && els.historySearch) { e.preventDefault(); els.historySearch.focus(); return; }
@@ -886,17 +908,28 @@
 
   if (els.loginBtn) els.loginBtn.addEventListener("click", function () { openAuth("login"); });
   if (els.signupBtn) els.signupBtn.addEventListener("click", function () { openAuth("signup"); });
-  if (els.headerLoginBtn) els.headerLoginBtn.addEventListener("click", function () { openAuth("login"); });
-  if (els.headerSignupBtn) els.headerSignupBtn.addEventListener("click", function () { openAuth("signup"); });
+  if (els.headerAccountBtn) els.headerAccountBtn.addEventListener("click", function () { accountUser ? openProfile() : openAuth("login"); });
   if (els.nudgeSignup) els.nudgeSignup.addEventListener("click", function () { openAuth("signup"); });
   if (els.nudgeDismiss) els.nudgeDismiss.addEventListener("click", function () { try { localStorage.setItem("back_to_center_account_nudge_dismissed_v1", "1"); } catch (_) {} renderAccount(); });
   if (els.logoutBtn) els.logoutBtn.addEventListener("click", async function () {
-    try { await authRequest("/api/auth/logout", {}); } catch (_) {}
-    accountUser = null; renderAccount(); showResponseStatus("You are logged out. Your local chats are still here.", false);
+    await logoutAccount();
   });
-  if (els.headerLogoutBtn) els.headerLogoutBtn.addEventListener("click", async function () {
-    try { await authRequest("/api/auth/logout", {}); } catch (_) {}
-    accountUser = null; renderAccount(); showResponseStatus("You are logged out. Your local chats are still here.", false);
+  if (els.profileCloseBtn) els.profileCloseBtn.addEventListener("click", closeProfile);
+  if (els.profileLogoutBtn) els.profileLogoutBtn.addEventListener("click", logoutAccount);
+  if (els.profileModal) els.profileModal.addEventListener("click", function (event) { if (event.target === els.profileModal) closeProfile(); });
+  if (els.changePasswordForm) els.changePasswordForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    if (els.changePasswordBtn) els.changePasswordBtn.disabled = true;
+    if (els.profileError) els.profileError.hidden = true;
+    try {
+      var nextPassword = els.newPassword.value;
+      var confirmNext = els.confirmNewPassword.value;
+      if (nextPassword !== confirmNext) throw new Error("Passwords do not match.");
+      await authRequest("/api/auth/change-password", { password: nextPassword, confirmPassword: confirmNext });
+      closeProfile(); showResponseStatus("Password updated successfully.", false);
+    } catch (error) {
+      if (els.profileError) { els.profileError.textContent = error.message || "Could not update your password."; els.profileError.hidden = false; }
+    } finally { if (els.changePasswordBtn) els.changePasswordBtn.disabled = false; }
   });
   if (els.saveAccountChatBtn) els.saveAccountChatBtn.addEventListener("click", saveAccountChat);
   if (els.syncAccountChatsBtn) els.syncAccountChatsBtn.addEventListener("click", syncLocalChats);
@@ -1268,7 +1301,7 @@
     }
   } catch (_) {}
   if (typeof navigator !== "undefined" && navigator.serviceWorker) {
-    navigator.serviceWorker.register("/sw.js?v=20261019").catch(function () { /* installability is optional */ });
+    navigator.serviceWorker.register("/sw.js?v=20261020").catch(function () { /* installability is optional */ });
   }
   if (typeof window !== "undefined" && window.addEventListener) {
     window.addEventListener("beforeinstallprompt", function (event) {
