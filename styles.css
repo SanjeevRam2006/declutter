@@ -153,7 +153,9 @@ body.focus-mode .focus-screen[hidden] { display: block !important; }
 .account-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .account-saved-list { display: grid; gap: 4px; margin: 12px 0 0; padding: 0; list-style: none; }
 .account-saved-list:empty { display: none; }
-.account-saved-list .link-btn { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+.account-saved-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
+.account-saved-item .link-btn:first-child { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+.account-saved-item .danger { flex-shrink: 0; font-size: .76rem; }
 .account-nudge { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 12px 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--lav-mist); color: var(--ink-soft); font-size: .88rem; }
 .account-nudge .link-btn { color: var(--lav-deep); font-weight: 700; }
 .modal-backdrop { position: fixed !important; inset: 0 !important; z-index: 1000 !important; display: grid !important; place-items: center; width: 100vw; height: 100dvh; overflow-y: auto; padding: 24px; background: rgba(18, 15, 28, .62); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }

@@ -201,6 +201,13 @@ async function handleChats(req, res, route, config) {
       json(res, 200, { saved: true, chat: saved[0] || row });
       return true;
     }
+    if (route.startsWith("/api/account/chats/") && req.method === "DELETE") {
+      const chatId = decodeURIComponent(route.slice("/api/account/chats/".length));
+      if (!chatId || chatId.length > 200) { json(res, 400, { error: "Provide a valid chat id." }); return true; }
+      await supabaseRequest(config, "/rest/v1/declutter_chats?user_id=eq." + encodeURIComponent(user.id) + "&chat_id=eq." + encodeURIComponent(chatId), { method: "DELETE", headers }, config.service);
+      json(res, 200, { deleted: true });
+      return true;
+    }
     json(res, 405, { error: "Method not allowed." });
   } catch (error) {
     json(res, error.status === 401 ? 401 : 502, { error: error.message, code: error.code });

@@ -375,6 +375,7 @@
     if (els.authPasswordRow) els.authPasswordRow.hidden = reset;
     if (els.authPassword) { els.authPassword.required = !reset; els.authPassword.autocomplete = setPassword ? "new-password" : "current-password"; }
     if (els.authResetBtn) els.authResetBtn.hidden = signup || reset || setPassword;
+    if (els.authSwitchBtn) els.authSwitchBtn.hidden = setPassword;
     if (els.authEmail) els.authEmail.focus();
     els.confirmPasswordRow.hidden = !(signup || setPassword);
     els.authConfirmPassword.required = signup || setPassword;
@@ -385,10 +386,11 @@
 
   function closeAuth() { if (els.authModal) els.authModal.hidden = true; }
 
-  async function authRequest(path, payload) {
+  async function authRequest(path, payload, method) {
     var response;
     try {
-      response = await fetch(path, { method: payload ? "POST" : "GET", headers: payload ? { "Content-Type": "application/json" } : { "Accept": "application/json" }, credentials: "same-origin", body: payload ? JSON.stringify(payload) : undefined });
+      var requestMethod = method || (payload ? "POST" : "GET");
+      response = await fetch(path, { method: requestMethod, headers: payload ? { "Content-Type": "application/json" } : { "Accept": "application/json" }, credentials: "same-origin", body: payload ? JSON.stringify(payload) : undefined });
     } catch (_) {
       var networkError = new Error("Could not reach the local server. Make sure npm start is running, then refresh this page.");
       networkError.code = "network_error";
@@ -413,13 +415,28 @@
       if (els.accountSavedList) {
         els.accountSavedList.innerHTML = "";
         saved.forEach(function (remote) {
-          var item = document.createElement("li");
+          var item = document.createElement("li"); item.className = "account-saved-item";
           var button = document.createElement("button"); button.type = "button"; button.className = "link-btn"; button.textContent = remote.title || "Saved chat";
           button.addEventListener("click", function () { var id = "account_" + remote.id; if (convos.some(function (c) { return c.id === id; })) { currentId = id; showChatView(); renderThread(); restoreDraft(); } });
-          item.appendChild(button); els.accountSavedList.appendChild(item);
+          var remove = document.createElement("button"); remove.type = "button"; remove.className = "link-btn danger"; remove.textContent = "Delete"; remove.setAttribute("aria-label", "Delete saved chat: " + (remote.title || "Saved chat"));
+          remove.addEventListener("click", function () { deleteAccountChat(remote.id, item); });
+          item.appendChild(button); item.appendChild(remove); els.accountSavedList.appendChild(item);
         });
       }
     } catch (_) { /* account history is optional; local chats remain available */ }
+  }
+
+  async function deleteAccountChat(remoteId, item) {
+    if (!accountUser || !remoteId || !window.confirm("Delete this saved chat from your account?")) return;
+    try {
+      await authRequest("/api/account/chats/" + encodeURIComponent(remoteId), null, "DELETE");
+      var localId = "account_" + remoteId;
+      convos = convos.filter(function (c) { return c.id !== localId; });
+      persistConvos(convos); renderHistory();
+      if (item && item.parentNode) item.parentNode.removeChild(item);
+      if (currentId === localId) { currentId = convos[0] ? convos[0].id : null; renderThread(); }
+      showResponseStatus("Saved chat deleted from your account.", false);
+    } catch (err) { showResponseStatus(err.message || "Could not delete that saved chat.", true); }
   }
 
   async function saveAccountChat() {
@@ -1212,7 +1229,7 @@
     }
   } catch (_) {}
   if (typeof navigator !== "undefined" && navigator.serviceWorker) {
-    navigator.serviceWorker.register("/sw.js?v=20261018").catch(function () { /* installability is optional */ });
+    navigator.serviceWorker.register("/sw.js?v=20261019").catch(function () { /* installability is optional */ });
   }
   if (typeof window !== "undefined" && window.addEventListener) {
     window.addEventListener("beforeinstallprompt", function (event) {
