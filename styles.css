@@ -119,6 +119,7 @@ body.focus-mode .ambient-ring { border-color: rgba(156,174,255,.22); }
 .header-nav { display: flex; align-items: center; gap: 14px; }
 .header-note { color: var(--ink-faint); font-size: 0.9rem; }
 .account-greeting { color: var(--lav-deep); font-size: .82rem; font-weight: 700; white-space: nowrap; }
+body:not(.chat-view):not(.focus-mode) .account-greeting { display: none !important; }
 @media (max-width: 560px) { .header-note { display: none; } }
 body.focus-mode .home-view, body.focus-mode .layout, body:not(.focus-mode) .focus-screen { display: none; }
 body.focus-mode .focus-screen { display: block; padding-top: 44px; padding-bottom: 60px; }
@@ -127,6 +128,7 @@ body.focus-mode .focus-screen[hidden] { display: block !important; }
 /* Landing page */
 .home-view { min-height: calc(100vh - 100px); display: flex; flex-direction: column; justify-content: center; padding-top: 56px; padding-bottom: 64px; }
 .home-hero { width: min(100%, 980px); margin: 0 auto; text-align: center; }
+.home-account-greeting { margin: 0 0 18px; color: var(--lav-deep); font-size: .88rem; font-weight: 700; letter-spacing: .02em; }
 .home-hero h1 { margin: 12px 0 20px; font-family: var(--font-display); font-size: clamp(2.4rem, 5vw, 4.6rem); font-weight: 700; letter-spacing: -.045em; line-height: 1; }
 .home-brand-lockup { display: inline-flex; align-items: center; justify-content: center; gap: 14px; }
 .home-brand-lockup .brand-mark { width: 64px; height: 64px; box-shadow: 0 0 0 10px var(--lav-soft); }
