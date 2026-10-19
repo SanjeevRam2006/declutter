@@ -140,15 +140,17 @@ body.focus-mode #focusBtn { border-color: rgba(190, 202, 255, .8); background: r
 .home-title-description { margin: 0 0 22px; font-family: var(--font-display); font-size: clamp(3rem, 7vw, 6.5rem); font-weight: 500; letter-spacing: -.055em; line-height: .98; }
 .home-title-description em { color: var(--lav-deep); font-style: italic; }
 .home-lede { max-width: 620px; margin: 0 auto 34px; color: var(--ink-soft); font-size: clamp(1.05rem, 1.5vw, 1.35rem); }
-.home-entry { width: min(100%, 760px); margin: 0 auto; padding: 10px; border: 1px solid color-mix(in srgb, var(--lav) 26%, var(--line)); border-radius: 24px; background: color-mix(in srgb, var(--card) 88%, transparent); box-shadow: 0 18px 50px rgba(20, 16, 35, .14), 0 1px 0 rgba(255,255,255,.06) inset; backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); text-align: left; transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
-.home-entry:focus-within { border-color: var(--lav); box-shadow: 0 20px 60px rgba(20, 16, 35, .2), 0 0 0 4px color-mix(in srgb, var(--lav) 18%, transparent); transform: translateY(-1px); }
-.home-entry textarea { min-height: 92px; border: 0; background: transparent; box-shadow: none; resize: vertical; font-size: 1rem; line-height: 1.5; }
+.home-entry { position: relative; width: min(100%, 760px); margin: 0 auto; padding: 0; border: 1px solid color-mix(in srgb, var(--lav) 30%, var(--line)); border-radius: 28px; background: linear-gradient(145deg, color-mix(in srgb, var(--card) 94%, transparent), color-mix(in srgb, var(--lav-mist) 72%, transparent)); box-shadow: 0 22px 70px rgba(45, 32, 78, .12), 0 1px 0 rgba(255,255,255,.7) inset; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); text-align: left; overflow: hidden; transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+.home-entry::before { content: "START A THOUGHT"; display: block; padding: 17px 28px 0; color: var(--lav-deep); font-size: .66rem; font-weight: 800; letter-spacing: .16em; }
+.home-entry:focus-within { border-color: var(--lav); box-shadow: 0 26px 80px rgba(45, 32, 78, .18), 0 0 0 4px color-mix(in srgb, var(--lav) 16%, transparent); transform: translateY(-2px); }
+.home-entry textarea { min-height: 104px; padding: 12px 28px 20px; border: 0; background: transparent; box-shadow: none; resize: vertical; font-size: 1.08rem; line-height: 1.5; }
 .home-entry textarea:focus { box-shadow: none; }
-.home-entry-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 6px 6px 2px 12px; color: var(--ink-faint); font-size: .74rem; letter-spacing: .01em; }
+.home-entry-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 18px 14px 28px; border-top: 1px solid color-mix(in srgb, var(--line) 70%, transparent); color: var(--ink-faint); font-size: .74rem; letter-spacing: .01em; }
 .home-entry-footer .btn { flex-shrink: 0; }
-.home-entry-footer .btn { padding: 11px 20px; font-size: .9rem; }
-.home-prompts { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 14px; }
-.home-prompts .chip { padding: 8px 15px; font-size: .82rem; background: color-mix(in srgb, var(--lav-soft) 72%, transparent); }
+.home-entry-footer .btn { padding: 12px 22px; border-radius: 999px; font-size: .88rem; letter-spacing: .01em; }
+.home-prompts { display: flex; flex-wrap: wrap; justify-content: center; gap: 9px; margin-top: 18px; }
+.home-prompts .chip { padding: 9px 16px; font-size: .8rem; background: color-mix(in srgb, var(--lav-soft) 60%, transparent); border-color: color-mix(in srgb, var(--lav) 28%, var(--line)); transition: transform .2s ease, background .2s ease, border-color .2s ease; }
+.home-prompts .chip:hover { transform: translateY(-2px); background: var(--lav-soft); border-color: var(--lav); }
 .home-principles { width: min(100%, 920px); display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin: 48px auto 0; border: 1px solid color-mix(in srgb, var(--line) 72%, transparent); border-radius: 18px; overflow: hidden; background: color-mix(in srgb, var(--line) 55%, transparent); box-shadow: var(--shadow-sm); }
 .home-principles article { min-height: 126px; padding: 20px 22px; background: color-mix(in srgb, var(--card) 86%, transparent); transition: background .2s ease, transform .2s ease; }
 .home-principles article:hover { background: color-mix(in srgb, var(--lav-soft) 52%, var(--card)); }
