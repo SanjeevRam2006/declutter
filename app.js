@@ -18,6 +18,8 @@
   var convos = [];
   var currentId = null;
   var accountUser = null;
+  var accountSyncInFlight = null;
+  var accountSyncQueued = false;
   var authMode = "login";
   var accountPromptReady = false;
   var authPromptShown = false;
@@ -98,6 +100,47 @@
   function save() {
     persistConvos(convos);
     renderHistory();
+    if (accountUser && current()) queueAccountChat(current());
+  }
+
+  function accountChatId(c) {
+    if (!c || typeof c.id !== "string") return "";
+    if (c.accountId) return String(c.accountId);
+    return c.id.indexOf("account_") === 0 ? c.id.slice("account_".length) : c.id;
+  }
+
+  function isAccountSynced(c) {
+    return Boolean(c && (c.accountSynced || c.accountId || (typeof c.id === "string" && c.id.indexOf("account_") === 0)));
+  }
+
+  function markAccountSynced(c, remoteId) {
+    if (!c) return;
+    c.accountSynced = true;
+    c.accountId = String(remoteId || accountChatId(c));
+  }
+
+  function queueAccountChat(c) {
+    if (!accountUser || !c || !c.messages || !c.messages.length) return;
+    accountSyncQueued = true;
+    if (accountSyncInFlight) return;
+    setTimeout(function () {
+      if (!accountSyncQueued || accountSyncInFlight || !accountUser) return;
+      accountSyncQueued = false;
+      accountSyncInFlight = syncConversation(c).catch(function (err) {
+        showResponseStatus(err.message || "Could not sync this chat. Your local copy is still safe.", true);
+      }).finally(function () {
+        accountSyncInFlight = null;
+        if (accountSyncQueued && accountUser) queueAccountChat(c);
+      });
+    }, 250);
+  }
+
+  async function syncConversation(c) {
+    if (!accountUser || !c || !c.messages || !c.messages.length) return;
+    await authRequest("/api/account/chats", { conversation: { id: accountChatId(c), title: titleFor(c), messages: c.messages.map(function (m) { return { role: m.role, text: m.text, at: m.at }; }) } });
+    markAccountSynced(c, accountChatId(c));
+    persistConvos(convos);
+    renderAccount();
   }
 
   function readDrafts() {
@@ -336,7 +379,7 @@
   function renderAccount() {
     var c = current();
     var userTurnCount = c ? c.messages.filter(function (m) { return m.role === "user"; }).length : 0;
-    var unsyncedCount = convos.filter(function (item) { return item && item.messages && item.messages.length && String(item.id).indexOf("account_") !== 0; }).length;
+    var unsyncedCount = convos.filter(function (item) { return item && item.messages && item.messages.length && !isAccountSynced(item); }).length;
     if (els.accountGreeting) {
       els.accountGreeting.hidden = !accountUser;
       els.accountGreeting.textContent = accountUser ? "Hi, " + accountUser.username : "";
@@ -442,9 +485,19 @@
       var data = await authRequest("/api/account/chats");
       var saved = Array.isArray(data.chats) ? data.chats : [];
       saved.forEach(function (remote) {
-        var localId = "account_" + remote.id;
-        if (convos.some(function (c) { return c.id === localId; })) return;
-        convos.push({ id: localId, title: remote.title || "Saved chat", createdAt: remote.savedAt || Date.now(), updatedAt: remote.savedAt || Date.now(), messages: remote.messages || [], openQuestionKey: null, askedKeys: [] });
+        var local = convos.filter(function (c) {
+          return c.id === remote.id || c.accountId === remote.id || c.id === "account_" + remote.id;
+        })[0];
+        if (!local) {
+          local = { id: String(remote.id), title: remote.title || "Saved chat", createdAt: remote.savedAt || Date.now(), updatedAt: remote.savedAt || Date.now(), messages: remote.messages || [], openQuestionKey: null, askedKeys: [] };
+          convos.push(local);
+        } else if (isAccountSynced(local) || local.id === remote.id || local.id === "account_" + remote.id) {
+          // The account copy is authoritative for a previously synced chat.
+          local.title = remote.title || local.title;
+          local.messages = Array.isArray(remote.messages) ? remote.messages : local.messages;
+          local.updatedAt = remote.savedAt || local.updatedAt;
+        }
+        markAccountSynced(local, remote.id);
       });
       if (saved.length) { persistConvos(convos); renderHistory(); }
       if (els.accountSavedList) {
@@ -452,20 +505,26 @@
         saved.forEach(function (remote) {
           var item = document.createElement("li"); item.className = "account-saved-item";
           var button = document.createElement("button"); button.type = "button"; button.className = "link-btn"; button.textContent = remote.title || "Saved chat";
-          button.addEventListener("click", function () { var id = "account_" + remote.id; if (convos.some(function (c) { return c.id === id; })) { currentId = id; showChatView(); renderThread(); restoreDraft(); } });
+          button.addEventListener("click", function () {
+            var chat = convos.filter(function (c) { return c.accountId === remote.id || c.id === remote.id || c.id === "account_" + remote.id; })[0];
+            if (chat) { currentId = chat.id; showChatView(); renderThread(); restoreDraft(); }
+          });
           var remove = document.createElement("button"); remove.type = "button"; remove.className = "link-btn danger"; remove.textContent = "Delete"; remove.setAttribute("aria-label", "Delete saved chat: " + (remote.title || "Saved chat"));
           remove.addEventListener("click", function () { deleteAccountChat(remote.id, item); });
           item.appendChild(button); item.appendChild(remove); els.accountSavedList.appendChild(item);
         });
       }
-    } catch (_) { /* account history is optional; local chats remain available */ }
+    } catch (err) {
+      showResponseStatus(err.message || "Could not load account history. Your local chats are still safe.", true);
+    }
   }
 
   async function deleteAccountChat(remoteId, item) {
     if (!accountUser || !remoteId || !window.confirm("Delete this saved chat from your account?")) return;
     try {
       await authRequest("/api/account/chats/" + encodeURIComponent(remoteId), null, "DELETE");
-      var localId = "account_" + remoteId;
+      var local = convos.filter(function (c) { return c.accountId === remoteId || c.id === remoteId || c.id === "account_" + remoteId; })[0];
+      var localId = local && local.id;
       convos = convos.filter(function (c) { return c.id !== localId; });
       persistConvos(convos); renderHistory();
       if (item && item.parentNode) item.parentNode.removeChild(item);
@@ -478,9 +537,7 @@
     var c = current();
     if (!accountUser || !c || !c.messages.length) return;
     try {
-      var accountChatId = String(c.id).indexOf("account_") === 0 ? String(c.id).slice("account_".length) : c.id;
-      await authRequest("/api/account/chats", { conversation: { id: accountChatId, title: titleFor(c), messages: c.messages.map(function (m) { return { role: m.role, text: m.text, at: m.at }; }) } });
-      if (String(c.id).indexOf("account_") !== 0) { c.id = "account_" + c.id; currentId = c.id; persistConvos(convos); renderHistory(); }
+      await syncConversation(c);
       renderAccount();
       showResponseStatus("Saved to your account. The browser copy remains here too.", false);
     } catch (err) {
@@ -489,26 +546,24 @@
     }
   }
 
-  async function syncLocalChats() {
+  async function syncLocalChats(options) {
     if (!accountUser) return;
-    var localChats = convos.filter(function (item) { return item && item.messages && item.messages.length && String(item.id).indexOf("account_") !== 0; });
+    options = options || {};
+    var localChats = convos.filter(function (item) { return item && item.messages && item.messages.length && !isAccountSynced(item); });
     if (!localChats.length) { renderAccount(); return; }
-    if (!window.confirm("Sync " + localChats.length + " local chat" + (localChats.length === 1 ? "" : "s") + " to your account?")) return;
+    if (!options.automatic && !window.confirm("Sync " + localChats.length + " local chat" + (localChats.length === 1 ? "" : "s") + " to your account?")) return;
     if (els.syncAccountChatsBtn) els.syncAccountChatsBtn.disabled = true;
     try {
       for (var i = 0; i < localChats.length; i += 1) {
         var item = localChats[i];
-        var originalId = item.id;
-        await authRequest("/api/account/chats", { conversation: { id: item.id, title: titleFor(item), messages: item.messages.map(function (m) { return { role: m.role, text: m.text, at: m.at }; }) } });
-        item.id = "account_" + originalId;
-        if (currentId === originalId) currentId = item.id;
+        await syncConversation(item);
       }
       persistConvos(convos);
       await loadAccountChats();
       renderAccount();
-      showResponseStatus("Your local chats are now available on this account.", false);
+      if (!options.automatic) showResponseStatus("Your local chats are now available on this account.", false);
     } catch (err) {
-      showResponseStatus(err.message || "Could not sync all local chats.", true);
+      showResponseStatus(err.message || "Could not sync all local chats. Your local copies are still safe.", true);
     } finally { if (els.syncAccountChatsBtn) els.syncAccountChatsBtn.disabled = false; }
   }
 
@@ -973,8 +1028,10 @@
       els.authConfirmPassword.value = "";
       closeAuth();
       renderAccount();
-      loadAccountChats();
-      showResponseStatus("Signed in as " + accountUser.username + ". Save a chat whenever you choose.", false);
+      showResponseStatus("Signed in as " + accountUser.username + ". Syncing your chat history…", false);
+      await syncLocalChats({ automatic: true });
+      await loadAccountChats();
+      if (!els.responseStatus || !els.responseStatus.classList || !els.responseStatus.classList.contains("error")) showResponseStatus("Signed in as " + accountUser.username + ". Your chat history is up to date.", false);
     } catch (err) { els.authError.textContent = err.message || "Could not complete that request."; els.authError.hidden = false; }
     finally { if (els.authSubmitBtn) els.authSubmitBtn.disabled = false; }
   });
@@ -1294,7 +1351,11 @@
     if (authHash.get("type") === "recovery" && authHash.get("access_token")) setTimeout(function () { openAuth("set-password"); }, 0);
   } catch (_) {}
   if (typeof window !== "undefined" && window.location && window.location.origin) {
-    authRequest("/api/auth/me").then(function (data) { accountUser = data && data.authenticated ? data.user : null; renderAccount(); if (accountUser) loadAccountChats(); }).catch(function () { renderAccount(); });
+    authRequest("/api/auth/me").then(async function (data) {
+      accountUser = data && data.authenticated ? data.user : null;
+      renderAccount();
+      if (accountUser) { await syncLocalChats({ automatic: true }); await loadAccountChats(); }
+    }).catch(function () { renderAccount(); });
   }
   restoreDraft();
   updateCharCount();
