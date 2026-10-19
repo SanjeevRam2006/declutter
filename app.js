@@ -12,7 +12,7 @@
   ["homeView", "homeEntry", "homeInput", "chatView", "thread", "promptChips", "composer", "composerInput", "sendBtn",
     "emptyError", "storageWarning", "responseStatus", "accountNudge", "nudgeSignup", "nudgeDismiss", "retryBtn",
     "historyList", "historyCount", "emptyHistory", "deleteAllBtn", "newChatBtn", "brandHome",
-    "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "chatStats", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountGreeting", "homeAccountGreeting", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "saveAccountChatBtn", "syncAccountChatsBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authEmail", "authEmailRow", "authUsername", "authUsernameRow", "authPasswordRow", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authResetBtn", "authSwitchBtn"
+    "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "chatStats", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountGreeting", "homeAccountGreeting", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "headerLoginBtn", "headerSignupBtn", "headerLogoutBtn", "saveAccountChatBtn", "syncAccountChatsBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authEmail", "authEmailRow", "authUsername", "authUsernameRow", "authPasswordRow", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authResetBtn", "authSwitchBtn"
   ].forEach(function (id) { els[id] = $(id); });
 
   var convos = [];
@@ -349,6 +349,9 @@
     if (els.loginBtn) els.loginBtn.hidden = Boolean(accountUser);
     if (els.signupBtn) els.signupBtn.hidden = Boolean(accountUser);
     if (els.logoutBtn) els.logoutBtn.hidden = !accountUser;
+    if (els.headerLoginBtn) els.headerLoginBtn.hidden = Boolean(accountUser);
+    if (els.headerSignupBtn) els.headerSignupBtn.hidden = Boolean(accountUser);
+    if (els.headerLogoutBtn) els.headerLogoutBtn.hidden = !accountUser;
     if (els.saveAccountChatBtn) els.saveAccountChatBtn.hidden = !accountUser || !c || !c.messages.length;
     if (els.syncAccountChatsBtn) els.syncAccountChatsBtn.hidden = !accountUser || !unsyncedCount;
     var dismissed = localStorage.getItem("back_to_center_account_nudge_dismissed_v1") === "1";
@@ -708,7 +711,7 @@
     els.composerInput.focus();
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
-  els.newChatBtn.addEventListener("click", newChat);
+  if (els.newChatBtn) els.newChatBtn.addEventListener("click", newChat);
   els.brandHome.addEventListener("click", function (e) {
     e.preventDefault();
     showHomeView();
@@ -833,6 +836,7 @@
   function closeFocusScreen() {
     document.body.classList.remove("focus-mode"); if (els.focusScreen) els.focusScreen.hidden = true;
     if (els.focusBtn) { els.focusBtn.setAttribute("aria-pressed", "false"); els.focusBtn.textContent = "Focus"; els.focusBtn.title = "Open Focus Mode"; }
+    showChatView();
     renderFocus(); if (els.composerInput) els.composerInput.focus();
   }
   if (els.focusBtn) els.focusBtn.addEventListener("click", function () { document.body.classList.contains("focus-mode") ? closeFocusScreen() : openFocusScreen(); });
@@ -882,9 +886,15 @@
 
   if (els.loginBtn) els.loginBtn.addEventListener("click", function () { openAuth("login"); });
   if (els.signupBtn) els.signupBtn.addEventListener("click", function () { openAuth("signup"); });
+  if (els.headerLoginBtn) els.headerLoginBtn.addEventListener("click", function () { openAuth("login"); });
+  if (els.headerSignupBtn) els.headerSignupBtn.addEventListener("click", function () { openAuth("signup"); });
   if (els.nudgeSignup) els.nudgeSignup.addEventListener("click", function () { openAuth("signup"); });
   if (els.nudgeDismiss) els.nudgeDismiss.addEventListener("click", function () { try { localStorage.setItem("back_to_center_account_nudge_dismissed_v1", "1"); } catch (_) {} renderAccount(); });
   if (els.logoutBtn) els.logoutBtn.addEventListener("click", async function () {
+    try { await authRequest("/api/auth/logout", {}); } catch (_) {}
+    accountUser = null; renderAccount(); showResponseStatus("You are logged out. Your local chats are still here.", false);
+  });
+  if (els.headerLogoutBtn) els.headerLogoutBtn.addEventListener("click", async function () {
     try { await authRequest("/api/auth/logout", {}); } catch (_) {}
     accountUser = null; renderAccount(); showResponseStatus("You are logged out. Your local chats are still here.", false);
   });

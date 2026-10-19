@@ -124,6 +124,8 @@ body:not(.chat-view):not(.focus-mode) .account-greeting { display: none !importa
 body.focus-mode .home-view, body.focus-mode .layout, body:not(.focus-mode) .focus-screen { display: none; }
 body.focus-mode .focus-screen { display: block; padding-top: 44px; padding-bottom: 60px; }
 body.focus-mode .focus-screen[hidden] { display: block !important; }
+body.focus-mode #sidebarBtn { display: none; }
+body.focus-mode #focusBtn { border-color: rgba(190, 202, 255, .8); background: rgba(102, 120, 190, .2); }
 
 /* Landing page */
 .home-view { min-height: calc(100vh - 100px); display: flex; flex-direction: column; justify-content: center; padding-top: 56px; padding-bottom: 64px; }

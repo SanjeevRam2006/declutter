@@ -90,7 +90,7 @@ async function main() {
 
     await command("Page.reload", { ignoreCache: true });
     await waitFor(() => evaluate("document.readyState === 'complete' && document.querySelectorAll('#thread .msg').length === 2"), "saved chat reload");
-    await evaluate("document.querySelector('#newChatBtn').click()");
+    await evaluate("document.dispatchEvent(new KeyboardEvent('keydown', { key: 'n', bubbles: true, cancelable: true }))");
     assert.match(await evaluate("document.querySelector('#thread').innerText"), /Start anywhere/);
     await evaluate("document.querySelector('[data-act=open]').click()");
     assert.match(await evaluate("document.querySelector('#thread').innerText"), /report due tomorrow/);
