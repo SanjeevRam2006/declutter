@@ -126,13 +126,19 @@ function showDictationError(message) {
 
 function finishDictation() {
   dictating = false;
-  dictationStopping = true;
+  dictationStopping = false;
   if (voiceEls.dictationBtn) { voiceEls.dictationBtn.setAttribute("aria-pressed", "false"); voiceEls.dictationBtn.classList.remove("recording"); }
   if (voiceEls.dictationLabel) voiceEls.dictationLabel.textContent = "Dictate";
 }
 
 function toggleDictation() {
-  if (dictating && dictation) { dictationStopping = true; dictation.stop(); return; }
+  if (dictating && dictation) {
+    dictationStopping = true;
+    try { if (typeof dictation.abort === "function") dictation.abort(); else dictation.stop(); } catch (_) {}
+    finishDictation();
+    dictation = null;
+    return;
+  }
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) { showDictationError("Voice dictation is not supported in this browser. You can still type your message."); return; }
   dictation = new SpeechRecognition();
@@ -149,7 +155,20 @@ function toggleDictation() {
     for (let i = event.resultIndex; i < event.results.length; i += 1) transcript += event.results[i][0].transcript;
     if (input && transcript) { input.value = (startingText ? startingText + " " : "") + transcript.trim(); input.dispatchEvent(new Event("input", { bubbles: true })); input.focus(); }
   };
-  dictation.onerror = (event) => { finishDictation(); if (event.error !== "aborted") showDictationError(event.error === "not-allowed" ? "Microphone access was blocked. Allow it to use dictation." : "Dictation could not hear that. Try again."); };
+  dictation.onerror = (event) => {
+    const reason = event.error;
+    finishDictation();
+    dictation = null;
+    if (reason === "aborted") return;
+    const messages = {
+      "not-allowed": "Microphone access was blocked. Allow it for this site, then try again.",
+      "service-not-allowed": "Speech recognition is unavailable in this browser. Try Chrome or type your message.",
+      "no-speech": "No speech was detected. Speak closer to the microphone and try again.",
+      "audio-capture": "No microphone was detected. Check your microphone and try again.",
+      network: "Browser speech recognition could not reach its service. Check your connection and try again."
+    };
+    showDictationError(messages[reason] || "Dictation could not hear that. Check your microphone and try again.");
+  };
   dictation.onend = () => { finishDictation(); dictation = null; };
   try { dictation.start(); } catch (_) { finishDictation(); showDictationError("Dictation could not start. Try again."); }
 }

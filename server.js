@@ -287,7 +287,17 @@ function createServer({ config = configFromEnv(), fetchImpl = fetch, authStore =
       try {
         const response = await fetchImpl("https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=" + encodeURIComponent(config.elevenLabsAgentId), { headers: { "xi-api-key": config.elevenLabsApiKey, Accept: "application/json" } });
         const data = await response.json().catch(() => ({}));
-        if (!response.ok || !data.signed_url) { error(res, response.status === 401 || response.status === 403 ? 502 : 503, "voice_provider_error", "Could not start voice chat right now."); return; }
+        if (!response.ok || !data.signed_url) {
+          const message = response.status === 401
+            ? "ElevenLabs rejected the API key. Check that it is active and belongs to this workspace."
+            : response.status === 403
+              ? "ElevenLabs denied access. Enable ElevenAgents access for this API key."
+              : response.status === 404
+                ? "The configured Budd agent ID was not found in this ElevenLabs workspace."
+                : "Could not start voice chat right now.";
+          error(res, 503, "voice_provider_error", message);
+          return;
+        }
         sendJson(res, 200, { signedUrl: data.signed_url });
       } catch (_) { error(res, 503, "voice_provider_unavailable", "Could not reach the voice service right now."); }
       return;
