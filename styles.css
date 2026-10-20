@@ -435,10 +435,12 @@ body.hide-timestamps .message-time { display: none; }
 .chat-stats { margin: 8px 2px 0; color: var(--ink-faint); font-size: 0.75rem; text-align: right; font-variant-numeric: tabular-nums; }
 .chips-row { margin: 12px 0 2px; }
 #composer { position: sticky; bottom: 0; z-index: 6; padding: 10px 0 12px; background: linear-gradient(to bottom, color-mix(in srgb, var(--card) 0%, transparent), color-mix(in srgb, var(--card) 94%, transparent) 24%, var(--card) 58%); }
-#composer textarea { height: 96px; min-height: 96px; max-height: 96px; margin-top: 10px; overflow-y: auto; font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif; border: 1px solid var(--line); box-shadow: none; }
+#composer textarea { height: 112px; min-height: 96px; max-height: 240px; margin-top: 10px; padding: 14px 16px 68px; overflow-y: auto; resize: vertical; font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif; border: 1px solid var(--line); box-shadow: none; }
 #composer textarea:focus { border-color: var(--line); box-shadow: 0 0 0 3px color-mix(in srgb, var(--lav) 34%, transparent); }
-.composer-row { margin-top: 10px; justify-content: flex-end; }
-.composer-row #dictationBtn { margin-right: auto; }
+.composer-field { position: relative; }
+.composer-row { position: absolute; right: 12px; bottom: 12px; display: flex; flex-wrap: nowrap; align-items: center; gap: 9px; margin: 0; }
+.composer-row #dictationBtn { width: 46px; height: 46px; min-width: 46px; padding: 0; justify-content: center; border-radius: 14px; }
+.composer-mic svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .composer-row #dictationBtn.recording { border-color: var(--danger); color: var(--danger); background: color-mix(in srgb, var(--danger) 8%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 16%, transparent); }
 
 /* Voice chat */
@@ -574,8 +576,9 @@ kbd { display: inline-block; min-width: 24px; padding: 3px 7px; border: 1px soli
   .voice-panel { padding: 24px 18px; }
   .voice-orb { width: 128px; height: 128px; margin-top: 42px; }
   .voice-controls .btn, .composer-row .btn { width: auto; }
-  .composer-row { flex-wrap: wrap; }
-  .composer-row #dictationBtn { margin-right: 0; }
+  .composer-row { right: 9px; bottom: 9px; gap: 7px; }
+  .composer-row #dictationBtn { width: 42px; height: 42px; min-width: 42px; }
+  #composer textarea { padding: 13px 14px 64px; }
   .home-view { padding-top: 54px; padding-bottom: 54px; }
   .home-entry-footer { align-items: stretch; flex-direction: column; padding: 8px; }
   .home-entry-footer .btn { width: 100%; }

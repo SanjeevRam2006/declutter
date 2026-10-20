@@ -1,5 +1,5 @@
 /* Declutter voice UI: push-to-talk ElevenLabs STT -> DeepInfra -> ElevenLabs TTS. */
-const voiceEls = Object.fromEntries(["voiceBtn", "voiceView", "voiceBackBtn", "voiceStartBtn", "voiceMuteBtn", "voiceEndBtn", "voiceStatus", "voiceError", "voiceOrb", "voiceTranscript", "voiceReply", "dictationBtn", "dictationLabel", "homeView", "chatView", "focusScreen"].map((id) => [id, document.getElementById(id)]));
+const voiceEls = Object.fromEntries(["voiceBtn", "voiceView", "voiceBackBtn", "voiceStartBtn", "voiceMuteBtn", "voiceEndBtn", "voiceStatus", "voiceError", "voiceOrb", "voiceTranscript", "voiceReply", "dictationBtn", "homeView", "chatView", "focusScreen"].map((id) => [id, document.getElementById(id)]));
 let recordingStream = null;
 let recorder = null;
 let recordingChunks = [];
@@ -126,14 +126,14 @@ function toggleRecording() { if (recording) { recording = false; if (voiceRecogn
 function toggleVoiceMute() { /* Push-to-talk has no open microphone session to mute. */ }
 
 function showDictationError(message) { const status = document.getElementById("responseStatus"); if (status) { status.textContent = message; status.classList.add("error"); status.hidden = false; } }
-function finishDictation() { dictating = false; if (voiceEls.dictationBtn) { voiceEls.dictationBtn.setAttribute("aria-pressed", "false"); voiceEls.dictationBtn.classList.remove("recording"); } if (voiceEls.dictationLabel) voiceEls.dictationLabel.textContent = "Dictate"; }
+function finishDictation() { dictating = false; if (voiceEls.dictationBtn) { voiceEls.dictationBtn.setAttribute("aria-pressed", "false"); voiceEls.dictationBtn.setAttribute("aria-label", "Start dictation"); voiceEls.dictationBtn.title = "Start dictation"; voiceEls.dictationBtn.classList.remove("recording"); } }
 function toggleDictation() {
   if (dictating && dictation) { try { dictation.abort(); } catch (_) {} finishDictation(); dictation = null; return; }
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) { showDictationError("Voice dictation is not supported in this browser. You can still type your message."); return; }
   dictation = new SpeechRecognition(); dictation.lang = document.documentElement.lang || "en-US"; dictation.continuous = false; dictation.interimResults = true;
   const input = document.getElementById("composerInput"); const startingText = input ? input.value.trim() : ""; dictating = true;
-  if (voiceEls.dictationBtn) { voiceEls.dictationBtn.setAttribute("aria-pressed", "true"); voiceEls.dictationBtn.classList.add("recording"); } if (voiceEls.dictationLabel) voiceEls.dictationLabel.textContent = "Stop dictation";
+  if (voiceEls.dictationBtn) { voiceEls.dictationBtn.setAttribute("aria-pressed", "true"); voiceEls.dictationBtn.setAttribute("aria-label", "Stop dictation"); voiceEls.dictationBtn.title = "Stop dictation"; voiceEls.dictationBtn.classList.add("recording"); }
   dictation.onresult = (event) => { let transcript = ""; for (let i = event.resultIndex; i < event.results.length; i += 1) transcript += event.results[i][0].transcript; if (input && transcript) { input.value = (startingText ? startingText + " " : "") + transcript.trim(); input.dispatchEvent(new Event("input", { bubbles: true })); input.focus(); } };
   dictation.onerror = (event) => { const reason = event.error; finishDictation(); dictation = null; if (reason === "aborted") return; showDictationError(reason === "not-allowed" ? "Microphone access was blocked. Allow it for this site, then try again." : reason === "no-speech" ? "No speech was detected. Try again." : "Dictation could not hear that. Check your microphone and try again."); };
   dictation.onend = () => { finishDictation(); dictation = null; }; try { dictation.start(); } catch (_) { finishDictation(); showDictationError("Dictation could not start. Try again."); }
