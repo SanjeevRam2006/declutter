@@ -338,10 +338,12 @@ textarea.shake { animation: shake 0.35s ease; border-color: var(--danger); }
 .btn {
   font: inherit; font-weight: 600; font-size: 0.98rem;
   border-radius: 999px; padding: 13px 24px; cursor: pointer;
-  border: 1px solid transparent; transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+  border: 1px solid transparent; transition: transform 0.18s ease, box-shadow 0.2s ease, background 0.2s, border-color 0.2s;
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--line) 82%, transparent), 0 8px 16px rgba(80, 66, 120, .08), 0 1px 0 rgba(255,255,255,.65) inset;
   display: inline-flex; align-items: center; gap: 8px;
 }
-.btn:active { transform: scale(0.98); }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 5px 0 color-mix(in srgb, var(--line) 86%, transparent), 0 13px 22px rgba(80, 66, 120, .13), 0 1px 0 rgba(255,255,255,.75) inset; }
+.btn:active { transform: translateY(1px) scale(0.99); box-shadow: 0 1px 0 color-mix(in srgb, var(--line) 82%, transparent), 0 4px 9px rgba(80, 66, 120, .08); }
 .btn:disabled { opacity: 0.58; cursor: wait; transform: none; }
 .btn-primary { background: var(--ink); color: #fdfbf7; box-shadow: 0 8px 22px rgba(43, 42, 40, 0.22); }
 .btn-primary:hover { background: #1d1c1a; transform: translateY(-1px); }
