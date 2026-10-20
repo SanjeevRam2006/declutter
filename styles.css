@@ -275,16 +275,6 @@ body.chat-view .side-column .history { width: 100%; align-self: flex-start; }
 body.history-drawer-open.chat-view .side-column {
   transform: translateX(0); visibility: visible; pointer-events: auto;
 }
-.history-drawer-close {
-  position: sticky; z-index: 1; top: -18px; align-self: flex-end;
-  display: inline-flex; align-items: center; gap: 6px; min-height: 38px;
-  margin: -18px -8px 8px 0; padding: 5px 12px; border: 1px solid var(--line);
-  border-radius: 999px; color: var(--ink-soft); background: var(--card);
-  box-shadow: 0 2px 0 color-mix(in srgb, var(--lav-deep) 14%, transparent);
-  font: inherit; font-size: .86rem; font-weight: 650; cursor: pointer;
-}
-.history-drawer-close span { font-size: 1.35rem; line-height: .8; }
-.history-drawer-close:hover { color: var(--ink); transform: translateY(-1px); }
 .history-drawer-toggle {
   position: fixed; z-index: 40; top: 34%; right: 0; display: none;
   min-height: 48px; align-items: center; justify-content: center; gap: 9px;
@@ -301,6 +291,19 @@ body.chat-view .history-drawer-toggle { display: inline-flex; }
 .history-drawer-toggle:hover { background: color-mix(in srgb, var(--lav-deep) 82%, #171322); box-shadow: 0 7px 20px rgba(48, 34, 82, .34), inset 0 1px 0 rgba(255,255,255,.2); transform: translate(-2px, -50%); }
 .history-drawer-toggle:active { transform: translateY(-50%) scale(.98); }
 body.history-drawer-open .history-drawer-toggle { visibility: hidden; pointer-events: none; }
+.history-drawer-close-slider {
+  position: fixed; z-index: 42; top: 34%; right: max(0px, min(400px, calc(100vw - 20px)) - 42px);
+  display: none; width: 42px; height: 52px; align-items: center; justify-content: center;
+  padding: 0; border: 1px solid color-mix(in srgb, var(--lav-deep) 75%, #211a33);
+  border-left: 0; border-radius: 0 14px 14px 0; color: #fff; background: var(--lav-deep);
+  box-shadow: 0 5px 16px rgba(48, 34, 82, .28), inset 0 1px 0 rgba(255,255,255,.18);
+  cursor: pointer; transform: translateY(-50%);
+  transition: background .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+body.history-drawer-open.chat-view .history-drawer-close-slider { display: flex; }
+.history-drawer-close-slider svg { width: 23px; height: 23px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.history-drawer-close-slider:hover { background: color-mix(in srgb, var(--lav-deep) 82%, #171322); box-shadow: 0 7px 20px rgba(48, 34, 82, .34), inset 0 1px 0 rgba(255,255,255,.2); transform: translate(2px, -50%); }
+.history-drawer-close-slider:active { transform: translateY(-50%) scale(.98); }
 .history-drawer-scrim {
   position: fixed; z-index: 39; inset: 0; width: 100%; height: 100%;
   border: 0; background: rgba(24, 21, 31, .34); backdrop-filter: blur(2px); cursor: default;
@@ -310,9 +313,9 @@ body[data-theme="night"] .side-column { background: #201d29; box-shadow: -18px 0
 body[data-theme="night"] .history-drawer-scrim { background: rgba(5, 4, 10, .58); }
 @media (max-width: 560px) {
   body.chat-view .side-column { padding: 14px; }
-  .history-drawer-close { top: -14px; margin-top: -14px; }
   .history-drawer-toggle { min-height: 44px; padding: 0 9px 0 12px; gap: 6px; font-size: .8rem; }
   .history-drawer-toggle svg { width: 16px; height: 16px; }
+  .history-drawer-close-slider { right: max(0px, min(400px, calc(100vw - 20px)) - 38px); width: 38px; height: 48px; }
 }
 
 /* hero */
@@ -499,7 +502,6 @@ body.hide-timestamps .message-time { display: none; }
 .composer-field { display: flex; align-items: flex-end; gap: 8px; min-height: 64px; padding: 8px; border: 1px solid var(--line); border-radius: 24px; background: var(--card); box-shadow: inset 0 1px 3px rgba(43,42,40,.045), 0 2px 0 color-mix(in srgb, var(--line) 76%, transparent); transition: border-color .18s ease, box-shadow .18s ease; }
 .composer-field:focus-within { border-color: color-mix(in srgb, var(--lav) 48%, var(--line)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--lav) 16%, transparent), inset 0 1px 3px rgba(43,42,40,.04); }
 .composer-field > .btn { flex: 0 0 auto; width: 46px; height: 46px; min-width: 46px; padding: 0; justify-content: center; border-radius: 50%; }
-.composer-new-chat svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
 .composer-row { display: flex; flex: 0 0 auto; align-items: center; gap: 7px; margin: 0; }
 .composer-row .btn { width: 46px; height: 46px; min-width: 46px; padding: 0; justify-content: center; border-radius: 50%; }
 .composer-mic svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
