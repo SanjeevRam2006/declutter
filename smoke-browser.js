@@ -121,6 +121,8 @@ async function main() {
     assert.equal(await evaluate("document.body.classList.contains('voice-view') && !document.body.classList.contains('focus-mode')"), true, "Voice should replace Focus view");
     await evaluate("document.querySelector('#voiceBackBtn').click()");
     assert.equal(await evaluate("!document.body.classList.contains('voice-view') && !document.body.classList.contains('focus-mode')"), true, "Returning from Voice should restore the normal view");
+    await evaluate("document.querySelector('#voiceBtn').click(); document.querySelector('#sidebarBtn').click()");
+    assert.equal(await evaluate("document.body.classList.contains('chat-view') && !document.body.classList.contains('voice-view') && document.querySelector('#sidebarBtn').textContent === 'Hide chats'"), true, "Chats should leave Voice and open the text chat");
 
     await evaluate("document.querySelector('#composerInput').value = 'A new thought'; document.querySelector('#composerInput').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', shiftKey: true, bubbles: true, cancelable: true }));");
     assert.equal(await evaluate("document.querySelector('#historyCount').innerText"), "0");

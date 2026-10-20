@@ -165,4 +165,9 @@ window.addEventListener("declutter:focus-open", () => {
   endVoiceSession();
   hideVoicePage();
 });
+window.addEventListener("declutter:chat-open", () => {
+  if (!document.body.classList.contains("voice-view")) return;
+  endVoiceSession();
+  hideVoicePage();
+});
 window.addEventListener("pagehide", () => { if (voiceSession) endVoiceSession(); if (dictation) { try { dictation.stop(); } catch (_) {} } });

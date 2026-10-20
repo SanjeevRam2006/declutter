@@ -927,6 +927,7 @@
   }
   if (typeof window !== "undefined" && typeof window.addEventListener === "function") window.addEventListener("declutter:voice-open", function () {
     if (document.body.classList.contains("focus-mode")) closeFocusScreen();
+    setSidebar(false);
   });
   if (els.focusBtn) els.focusBtn.addEventListener("click", function () { document.body.classList.contains("focus-mode") ? closeFocusScreen() : openFocusScreen(); });
   if (els.focusBackBtn) els.focusBackBtn.addEventListener("click", closeFocusScreen);
@@ -961,7 +962,14 @@
     try { localStorage.setItem("back_to_center_sidebar_v1", open ? "open" : "closed"); } catch (_) {}
   }
   if (els.sidebarBtn) els.sidebarBtn.addEventListener("click", function () {
-    if (els.homeView && !els.homeView.hidden) showChatView();
+    var inChat = document.body.classList.contains("chat-view") && els.chatView && !els.chatView.hidden;
+    if (!inChat) {
+      if (document.body.classList.contains("focus-mode")) closeFocusScreen();
+      if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") window.dispatchEvent(new Event("declutter:chat-open"));
+      showChatView();
+      setSidebar(true);
+      return;
+    }
     setSidebar(document.body.classList.contains("sidebar-collapsed"));
   });
 
