@@ -636,11 +636,11 @@ kbd { display: inline-block; min-width: 24px; padding: 3px 7px; border: 1px soli
 .site-header, body.focus-mode .site-header {
   background: var(--bg); border-bottom: 1px solid var(--line);
 }
-.header-inner { padding-block: 20px; gap: 24px; }
-.brand-text { font-family: var(--font-body); font-weight: 700; font-size: 1.2rem; letter-spacing: -.055em; }
-.brand-mark { width: 28px; height: 28px; box-shadow: inset -3px -4px 8px #49376b66, inset 2px 2px 5px #ffffff99, 0 3px 7px #5f548922; }
-.header-nav { gap: 6px; }
-.header-note { margin-right: 24px; font-size: .78rem; color: var(--ink-faint); }
+.header-inner { padding-block: 18px; gap: 16px; }
+.brand { gap: 12px; flex-shrink: 0; }
+.brand-text { font-family: var(--font-body); font-weight: 700; font-size: 1.55rem; letter-spacing: -.055em; }
+.brand-mark { width: 42px; height: 42px; box-shadow: inset -3px -4px 8px #49376b66, inset 2px 2px 5px #ffffff99, 0 3px 7px #5f548922; }
+.header-note { margin: 0 8px 0 auto; font-size: .78rem; color: var(--ink-faint); }
 .btn, .side-column .btn, .home-entry-footer .home-cta {
   min-height: 44px; padding: 11px 20px; border-radius: 12px;
   font-size: .875rem; font-weight: 600; letter-spacing: -.015em;
@@ -657,7 +657,7 @@ kbd { display: inline-block; min-width: 24px; padding: 3px 7px; border: 1px soli
   border: 1px solid #282824; box-shadow: inset 0 1px 0 #ffffff30, 0 3px 0 #161613, 0 6px 14px #28282418;
 }
 .btn-primary:hover, body.focus-mode .btn-primary:hover, .home-entry-footer .home-cta:hover { background: #373732; color: #fffefa; box-shadow: inset 0 1px 0 #ffffff30, 0 3px 0 #161613, 0 8px 18px #28282425; }
-.header-nav { gap: 12px; }
+.header-nav { gap: 7px; }
 .header-nav .btn {
   --button-depth: color-mix(in srgb, var(--line) 88%, var(--ink) 12%);
   border: 1px solid var(--line);
@@ -759,6 +759,8 @@ body[data-theme="night"] .home-entry textarea { background: transparent; }
 @media (max-width: 560px) {
   .wrap { padding-inline: 18px; }
   .header-inner { padding-block: 16px; }
+  .brand-text { font-size: 1.25rem; }
+  .brand-mark { width: 34px; height: 34px; }
   .header-nav { max-width: none; width: 100%; justify-content: flex-start; gap: 4px; }
   .header-nav .btn { font-size: .72rem; padding: 8px 10px; min-height: 40px; }
   .header-nav .header-auth-btn { margin-left: 0; max-width: none; }
