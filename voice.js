@@ -14,7 +14,16 @@ let discardRecording = false;
 let voiceRecognition = null;
 
 function setVoiceError(message) { if (!voiceEls.voiceError) return; voiceEls.voiceError.textContent = message || ""; voiceEls.voiceError.hidden = !message; }
-function setVoiceStatus(message, state) { if (voiceEls.voiceStatus) voiceEls.voiceStatus.textContent = message; if (voiceEls.voiceView) voiceEls.voiceView.dataset.voiceState = state || "idle"; if (voiceEls.voiceOrb) voiceEls.voiceOrb.classList.toggle("active", ["speaking", "listening", "recording"].includes(state)); }
+function setVoiceStatus(message, state) {
+  const currentState = state || "idle";
+  if (voiceEls.voiceStatus) voiceEls.voiceStatus.textContent = message;
+  if (voiceEls.voiceView) voiceEls.voiceView.dataset.voiceState = currentState;
+  if (voiceEls.voiceOrb) {
+    voiceEls.voiceOrb.classList.toggle("active", ["speaking", "listening", "recording", "thinking"].includes(currentState));
+    voiceEls.voiceOrb.classList.toggle("speaking", currentState === "speaking");
+    voiceEls.voiceOrb.classList.toggle("thinking", currentState === "thinking");
+  }
+}
 
 function showVoicePage() {
   if (!voiceEls.voiceView) return;
@@ -61,10 +70,10 @@ async function speak(text) {
 async function processRecording(blob) {
   voiceBusy = true; if (voiceEls.voiceStartBtn) voiceEls.voiceStartBtn.disabled = true;
   try {
-    setVoiceStatus("Transcribing...", "speaking"); const text = await transcribe(blob);
+    setVoiceStatus("Transcribing...", "thinking"); const text = await transcribe(blob);
     if (!text) throw new Error("No speech was detected. Try speaking a little closer to the microphone.");
     if (voiceEls.voiceTranscript) voiceEls.voiceTranscript.textContent = text;
-    setVoiceStatus("Budd is thinking...", "speaking"); const reply = await requestVoiceReply(text);
+    setVoiceStatus("Budd is thinking...", "thinking"); const reply = await requestVoiceReply(text);
     if (voiceEls.voiceReply) voiceEls.voiceReply.textContent = reply;
     setVoiceStatus("Budd is speaking...", "speaking"); await speak(reply);
   } catch (error) { setVoiceError(error?.message || "Voice chat could not complete that turn."); setVoiceStatus("Ready when you are.", "error"); resetVoiceControls(); }
@@ -75,7 +84,7 @@ async function processTranscript(text) {
   try {
     if (!text) throw new Error("No speech was detected. Try again.");
     if (voiceEls.voiceTranscript) voiceEls.voiceTranscript.textContent = text;
-    setVoiceStatus("Budd is thinking...", "speaking"); const reply = await requestVoiceReply(text);
+    setVoiceStatus("Budd is thinking...", "thinking"); const reply = await requestVoiceReply(text);
     if (voiceEls.voiceReply) voiceEls.voiceReply.textContent = reply;
     setVoiceStatus("Budd is speaking...", "speaking"); await speak(reply);
   } catch (error) { setVoiceError(error?.message || "Voice chat could not complete that turn."); setVoiceStatus("Ready when you are.", "error"); resetVoiceControls(); }
@@ -122,7 +131,7 @@ async function startVoiceSession() {
     if (voiceEls.voiceEndBtn) voiceEls.voiceEndBtn.hidden = false; setVoiceStatus("Listening... tap stop when you're done.", "recording");
   } catch (error) { stopStream(); setVoiceError(error?.name === "NotAllowedError" ? "Microphone access was blocked. Allow it for this site, then try again." : "Could not start recording."); setVoiceStatus("Ready when you are.", "error"); }
 }
-function toggleRecording() { if (recording) { recording = false; if (voiceRecognition) { try { voiceRecognition.stop(); } catch (_) {} setVoiceStatus("Preparing your message...", "speaking"); } else if (recorder && recorder.state !== "inactive") { recorder.stop(); setVoiceStatus("Preparing your message...", "speaking"); } } else startVoiceSession(); }
+function toggleRecording() { if (recording) { recording = false; if (voiceRecognition) { try { voiceRecognition.stop(); } catch (_) {} setVoiceStatus("Preparing your message...", "thinking"); } else if (recorder && recorder.state !== "inactive") { recorder.stop(); setVoiceStatus("Preparing your message...", "thinking"); } } else startVoiceSession(); }
 function toggleVoiceMute() { /* Push-to-talk has no open microphone session to mute. */ }
 
 function showDictationError(message) { const status = document.getElementById("responseStatus"); if (status) { status.textContent = message; status.classList.add("error"); status.hidden = false; } }
