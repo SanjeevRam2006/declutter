@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=20261033" />
+  <link rel="stylesheet" href="styles.css?v=20261034" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='%238B7FB8'/><circle cx='50' cy='50' r='16' fill='%23FAF7F2'/></svg>" />
 </head>
 <body>
@@ -35,7 +35,7 @@
         <span class="header-note">A quiet place to think</span>
         <button class="btn btn-ghost btn-sm" id="installBtn" type="button" hidden title="Install Declutter AI">Install app</button>
         <button class="btn btn-ghost btn-sm" id="themeBtn" type="button" aria-pressed="false" title="Switch between day and night themes">Night theme</button>
-        <button class="btn btn-ghost btn-sm" id="sidebarBtn" type="button" aria-expanded="false" title="Open chats and tools">Chats</button>
+        <button class="btn btn-ghost btn-sm" id="sidebarBtn" type="button" title="Open chats">Chats</button>
         <button class="btn btn-ghost btn-sm" id="voiceBtn" type="button" title="Talk with Budd">Talk to us</button>
         <button class="btn btn-ghost btn-sm" id="focusBtn" type="button" aria-pressed="false" title="Open Focus Mode">Focus</button>
         <button class="btn btn-ghost btn-sm header-auth-btn profile-trigger" id="headerAccountBtn" type="button"><span class="profile-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="3.25"></circle><path d="M5.5 19c.7-3.2 3-5 6.5-5s5.8 1.8 6.5 5"></path></svg></span><span id="headerAccountLabel">Log in / Create account</span></button>
@@ -68,6 +68,10 @@
   </main>
 
   <main class="wrap layout" id="chatView" hidden>
+    <button class="history-drawer-scrim" id="historyDrawerScrim" type="button" aria-label="Close chat history" tabindex="-1" hidden></button>
+    <button class="history-drawer-toggle" id="historyDrawerToggle" type="button" aria-label="Open past chats" aria-controls="historyDrawer" aria-expanded="false" title="Open past chats">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9 18 6-6-6-6"></path></svg>
+    </button>
     <div class="main-column">
       <section class="hero">
         <h1>What's on your mind? <em>Say it plainly.</em></h1>
@@ -120,7 +124,8 @@
       </section>
     </div>
 
-    <aside class="side-column">
+    <aside class="side-column" id="historyDrawer" aria-label="Past chats and tools" aria-hidden="true">
+      <button class="history-drawer-close" id="historyDrawerCloseBtn" type="button"><span aria-hidden="true">×</span> Close</button>
       <section class="card history" aria-labelledby="historyTitle">
         <div class="history-header">
           <div>
@@ -316,7 +321,7 @@
 
   <script src="responder.js?v=20261023"></script>
   <script src="safety.js?v=20261023"></script>
-  <script src="app.js?v=20261033"></script>
+  <script src="app.js?v=20261034"></script>
   <script type="module" src="voice.js?v=20261031"></script>
 </body>
 </html>

@@ -12,7 +12,7 @@
   ["homeView", "homeEntry", "homeInput", "chatView", "thread", "promptChips", "composer", "composerInput", "sendBtn",
     "emptyError", "storageWarning", "responseStatus", "accountNudge", "nudgeSignup", "nudgeDismiss", "retryBtn", "privacyBtn", "privacyModal", "privacyCloseBtn",
     "historyList", "historyCount", "emptyHistory", "deleteAllBtn", "newChatBtn", "brandHome",
-    "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "chatStats", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountGreeting", "homeAccountGreeting", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "headerAccountBtn", "headerAccountLabel", "saveAccountChatBtn", "syncAccountChatsBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authEmail", "authEmailRow", "authUsername", "authUsernameRow", "authPasswordRow", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authResetBtn", "authSwitchBtn", "profileModal", "profileTitle", "profileCloseBtn", "profileUsername", "profileEmail", "changePasswordToggle", "changePasswordForm", "currentPassword", "newPassword", "confirmNewPassword", "profileError", "changePasswordBtn", "profileLogoutBtn"
+    "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "historyDrawer", "historyDrawerToggle", "historyDrawerCloseBtn", "historyDrawerScrim", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "chatStats", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountGreeting", "homeAccountGreeting", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "headerAccountBtn", "headerAccountLabel", "saveAccountChatBtn", "syncAccountChatsBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authEmail", "authEmailRow", "authUsername", "authUsernameRow", "authPasswordRow", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authResetBtn", "authSwitchBtn", "profileModal", "profileTitle", "profileCloseBtn", "profileUsername", "profileEmail", "changePasswordToggle", "changePasswordForm", "currentPassword", "newPassword", "confirmNewPassword", "profileError", "changePasswordBtn", "profileLogoutBtn"
   ].forEach(function (id) { els[id] = $(id); });
 
   var convos = [];
@@ -956,25 +956,29 @@
   });
   if (els.focusResetBtn) els.focusResetBtn.addEventListener("click", resetFocusTimer);
 
-  function setSidebar(open) {
-    if (document.body && document.body.classList) document.body.classList.toggle("sidebar-collapsed", !open);
-    if (els.sidebarBtn) {
-      els.sidebarBtn.setAttribute("aria-expanded", open ? "true" : "false");
-      els.sidebarBtn.textContent = open ? "Hide chats" : "Chats";
-      els.sidebarBtn.title = open ? "Hide chats and tools" : "Open chats and tools";
+  function setSidebar(open, restoreFocus) {
+    var isOpen = Boolean(open);
+    if (document.body && document.body.classList) document.body.classList.toggle("history-drawer-open", isOpen);
+    if (els.historyDrawerToggle) els.historyDrawerToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    if (els.historyDrawer) {
+      els.historyDrawer.setAttribute("aria-hidden", isOpen ? "false" : "true");
+      els.historyDrawer.inert = !isOpen;
     }
-    try { localStorage.setItem("back_to_center_sidebar_v1", open ? "open" : "closed"); } catch (_) {}
+    if (els.historyDrawerScrim) els.historyDrawerScrim.hidden = !isOpen;
+    if (isOpen && els.historyDrawerCloseBtn) els.historyDrawerCloseBtn.focus();
+    else if (restoreFocus && els.historyDrawerToggle) els.historyDrawerToggle.focus();
   }
   if (els.sidebarBtn) els.sidebarBtn.addEventListener("click", function () {
-    var inChat = document.body.classList.contains("chat-view") && els.chatView && !els.chatView.hidden;
-    if (!inChat) {
-      if (document.body.classList.contains("focus-mode")) closeFocusScreen();
-      if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") window.dispatchEvent(new Event("declutter:chat-open"));
-      showChatView();
-      setSidebar(true);
-      return;
-    }
-    setSidebar(document.body.classList.contains("sidebar-collapsed"));
+    if (document.body.classList.contains("focus-mode")) closeFocusScreen();
+    if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") window.dispatchEvent(new Event("declutter:chat-open"));
+    showChatView();
+    setSidebar(false);
+  });
+  if (els.historyDrawerToggle) els.historyDrawerToggle.addEventListener("click", function () { setSidebar(true); });
+  if (els.historyDrawerCloseBtn) els.historyDrawerCloseBtn.addEventListener("click", function () { setSidebar(false, true); });
+  if (els.historyDrawerScrim) els.historyDrawerScrim.addEventListener("click", function () { setSidebar(false, true); });
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && document.body.classList.contains("history-drawer-open")) setSidebar(false, true);
   });
 
   if (els.themeBtn) els.themeBtn.addEventListener("click", function () {
@@ -1378,9 +1382,7 @@
   loadFocusTimer();
   renderFocus();
   startFocusLoop();
-  try {
-    setSidebar(localStorage.getItem("back_to_center_sidebar_v1") === "open");
-  } catch (_) { setSidebar(false); }
+  setSidebar(false);
   try { localStorage.removeItem("back_to_center_offline_v1"); } catch (_) {}
   try {
     if (localStorage.getItem("back_to_center_theme_v1") === "night" && els.themeBtn) {
@@ -1397,7 +1399,7 @@
     }
   } catch (_) {}
   if (typeof navigator !== "undefined" && navigator.serviceWorker) {
-    navigator.serviceWorker.register("/sw.js?v=20261033").catch(function () { /* installability is optional */ });
+    navigator.serviceWorker.register("/sw.js?v=20261034").catch(function () { /* installability is optional */ });
   }
   if (typeof window !== "undefined" && window.addEventListener) {
     window.addEventListener("beforeinstallprompt", function (event) {
