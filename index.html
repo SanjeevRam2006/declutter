@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=20261042" />
+  <link rel="stylesheet" href="styles.css?v=20261044" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='%238B7FB8'/><circle cx='50' cy='50' r='16' fill='%23FAF7F2'/></svg>" />
 </head>
 <body>
@@ -27,13 +27,15 @@
 
   <header class="site-header">
     <div class="wrap header-inner">
-      <a class="brand" href="#" id="brandHome">
-        <span class="brand-mark" aria-hidden="true"></span>
-        <span class="brand-text">Declutter AI</span>
-      </a>
-      <nav class="header-nav">
-        <span class="header-note">A quiet place to think</span>
+      <div class="header-brand-actions">
+        <a class="brand" href="#" id="brandHome">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-text">Declutter AI</span>
+        </a>
         <button class="btn btn-ghost btn-sm" id="installBtn" type="button" hidden title="Install Declutter AI">Install app</button>
+      </div>
+      <nav class="header-nav">
+        <span class="header-note">Make Room for Clarity</span>
         <button class="btn btn-ghost btn-sm" id="themeBtn" type="button" aria-pressed="false" title="Switch between day and night themes">Night theme</button>
         <button class="btn btn-ghost btn-sm" id="sidebarBtn" type="button" title="Open chats">Chats</button>
         <button class="btn btn-ghost btn-sm" id="voiceBtn" type="button" title="Talk with Budd">Talk to us</button>
@@ -75,6 +77,12 @@
         <h1>What's on your mind? <em>Say it plainly.</em></h1>
         <p class="lede">Write whatever's there — messy is fine. You'll get an honest reply, and you can keep talking from there.</p>
       </section>
+
+      <div class="chat-history-action-row">
+        <button class="history-drawer-toggle" id="historyDrawerToggle" type="button" aria-label="Show chats" aria-controls="historyDrawer" aria-expanded="false" title="Show chats">
+          <span>Show chats</span><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 5l6 7-6 7M10 5l6 7-6 7M16 5l6 7-6 7"></path></svg>
+        </button>
+      </div>
 
       <section class="card chat-card" aria-label="Conversation">
         <div class="thread" id="thread" role="log" aria-label="Conversation messages" aria-live="polite" aria-relevant="additions text"></div>
@@ -182,10 +190,6 @@
       </section>
     </aside>
   </main>
-
-  <button class="history-drawer-toggle" id="historyDrawerToggle" type="button" aria-label="Show chats" aria-controls="historyDrawer" aria-expanded="false" title="Show chats">
-    <span>Show chats</span><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 5l6 7-6 7M10 5l6 7-6 7M16 5l6 7-6 7"></path></svg>
-  </button>
 
   <div class="modal-backdrop" id="authModal" hidden>
     <section class="auth-modal card" role="dialog" aria-modal="true" aria-labelledby="authTitle">
@@ -319,7 +323,7 @@
 
   <script src="responder.js?v=20261023"></script>
   <script src="safety.js?v=20261023"></script>
-  <script src="app.js?v=20261042"></script>
+  <script src="app.js?v=20261044"></script>
   <script type="module" src="voice.js?v=20261042"></script>
 </body>
 </html>
