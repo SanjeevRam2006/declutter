@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=20261037" />
+  <link rel="stylesheet" href="styles.css?v=20261038" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='%238B7FB8'/><circle cx='50' cy='50' r='16' fill='%23FAF7F2'/></svg>" />
 </head>
 <body>
@@ -77,9 +77,6 @@
       </section>
 
       <section class="card chat-card" aria-label="Conversation">
-        <div class="chat-history-action-row"><button class="history-drawer-toggle" id="historyDrawerToggle" type="button" aria-label="Show chats" aria-controls="historyDrawer" aria-expanded="false" title="Show chats">
-          <span>Show chats</span><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 5l6 7-6 7M10 5l6 7-6 7M16 5l6 7-6 7"></path></svg>
-        </button></div>
         <div class="thread" id="thread" role="log" aria-label="Conversation messages" aria-live="polite" aria-relevant="additions text"></div>
         <button class="jump-latest" id="jumpLatestBtn" type="button" hidden>Jump to latest ↓</button>
         <section class="takeaway" id="takeaway" aria-labelledby="takeawayTitle" hidden>
@@ -187,6 +184,10 @@
       </section>
     </aside>
   </main>
+
+  <button class="history-drawer-toggle" id="historyDrawerToggle" type="button" aria-label="Show chats" aria-controls="historyDrawer" aria-expanded="false" title="Show chats">
+    <span>Show chats</span><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 5l6 7-6 7M10 5l6 7-6 7M16 5l6 7-6 7"></path></svg>
+  </button>
 
   <div class="modal-backdrop" id="authModal" hidden>
     <section class="auth-modal card" role="dialog" aria-modal="true" aria-labelledby="authTitle">
@@ -320,7 +321,7 @@
 
   <script src="responder.js?v=20261023"></script>
   <script src="safety.js?v=20261023"></script>
-  <script src="app.js?v=20261037"></script>
+  <script src="app.js?v=20261038"></script>
   <script type="module" src="voice.js?v=20261031"></script>
 </body>
 </html>
