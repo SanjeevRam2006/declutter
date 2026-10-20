@@ -283,11 +283,18 @@ function createServer({ config = configFromEnv(), fetchImpl = fetch, authStore =
     if (pathname === "/api/voice/signed-url") {
       if (req.method !== "GET") { error(res, 405, "method_not_allowed", "Method not allowed."); return; }
       if (!validLocalOrigin(req)) { error(res, 403, "origin_not_allowed", "Request origin is not allowed."); return; }
-      if (!config.elevenLabsApiKey || !config.elevenLabsAgentId) { error(res, 503, "voice_not_configured", "Voice chat is not configured yet."); return; }
+      if (!config.elevenLabsAgentId) { error(res, 503, "voice_not_configured", "Voice chat is not configured yet."); return; }
+      if (!config.elevenLabsApiKey) { sendJson(res, 200, { agentId: config.elevenLabsAgentId, mode: "public" }); return; }
       try {
         const response = await fetchImpl("https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=" + encodeURIComponent(config.elevenLabsAgentId), { headers: { "xi-api-key": config.elevenLabsApiKey, Accept: "application/json" } });
         const data = await response.json().catch(() => ({}));
         if (!response.ok || !data.signed_url) {
+          if (response.status === 401) {
+            // Public agents do not require a key. Let the client try the
+            // supported agentId flow instead of blocking on an unrelated key.
+            sendJson(res, 200, { agentId: config.elevenLabsAgentId, mode: "public" });
+            return;
+          }
           const message = response.status === 401
             ? "ElevenLabs rejected the API key. Check that it is active and belongs to this workspace."
             : response.status === 403

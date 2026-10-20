@@ -42,6 +42,15 @@ test("voice signed URL stays server-side and requires voice configuration", asyn
   assert.doesNotMatch(JSON.stringify(data), /eleven-secret|agent_budd/);
 });
 
+test("public voice agents can use the agent ID without a provider key", async (t) => {
+  const server = createServer({ config: { port: 8080, timeoutMs: 1000, apiKey: "", model: "test", elevenLabsApiKey: "", elevenLabsAgentId: "agent_public" } });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  t.after(() => new Promise((resolve) => server.close(resolve)));
+  const response = await fetch(`http://127.0.0.1:${server.address().port}/api/voice/signed-url`);
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { agentId: "agent_public", mode: "public" });
+});
+
 async function chat(base, messages, options = {}) {
   const response = await fetch(base + "/api/chat", {
     method: "POST", headers: { "Content-Type": "application/json", ...options.headers },

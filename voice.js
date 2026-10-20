@@ -75,12 +75,12 @@ async function startVoiceSession() {
     permissionStream.getTracks().forEach((track) => track.stop());
     const response = await fetch("/api/voice/signed-url", { headers: { Accept: "application/json" }, credentials: "same-origin" });
     const data = await response.json().catch(() => ({}));
-    if (!response.ok || !data.signedUrl) throw new Error(data.error || "Budd is unavailable right now.");
+    if (!response.ok || (!data.signedUrl && !data.agentId)) throw new Error(data.error || "Budd is unavailable right now.");
     const sdk = await import(elevenLabsModuleUrl);
     const Conversation = sdk.Conversation || sdk.default?.Conversation;
     if (!Conversation || typeof Conversation.startSession !== "function") throw new Error("The voice client could not load. Please refresh and try again.");
     voiceSession = await Conversation.startSession({
-      signedUrl: data.signedUrl,
+      ...(data.signedUrl ? { signedUrl: data.signedUrl } : { agentId: data.agentId }),
       overrides: { agent: { firstMessage: "Hey. What's on your mind?" } },
       onConnect: () => {
         if (voiceEls.voiceStartBtn) voiceEls.voiceStartBtn.hidden = true;
