@@ -8,7 +8,7 @@ Chats remain browser-local by default. After meaningful use, the app may offer a
 
 ## Requirements and setup
 
-- Node.js 20.6 or newer (built-in `fetch` and `--env-file` are used). No npm packages are required.
+- Node.js 20.6 or newer (built-in `fetch` and `--env-file` are used). No runtime npm packages are required; voice mode loads the pinned ElevenLabs browser SDK from jsDelivr.
 - A DeepInfra account and API key for AI replies. Create a key in your DeepInfra account. The [default model](https://deepinfra.com/meta-llama/Llama-3.3-70B-Instruct-Turbo/api) is `meta-llama/Llama-3.3-70B-Instruct-Turbo`; change it with `DEEPINFRA_MODEL` if needed.
 - A current browser. The server listens on `127.0.0.1` only.
 
@@ -29,6 +29,15 @@ The hosted version uses the Vercel Node functions in `api/chat.js` and `api/heal
 
 Hosted accounts use Supabase. Configure `SUPABASE_URL` (the project URL, not the dashboard URL), `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and `PUBLIC_APP_URL` (the deployed origin) in Vercel, then run `supabase-schema.sql` once in the Supabase SQL editor. Signup uses email, username, password, and confirmation; login uses email and password; the account dialog also supports password-reset links. Anonymous chats remain browser-local until a user explicitly saves one to their account.
 
+### Voice chat setup
+
+Voice mode uses ElevenLabs Conversational AI for the browser-based conversation with Budd. Add these server-side variables in local `.env` and in Vercel Preview/Production (never put the values in frontend code):
+
+- `ELEVENLABS_API_KEY` — an ElevenLabs API key with Conversational AI access.
+- `ELEVENLABS_AGENT_ID` — the ID of the ElevenLabs agent configured as Budd.
+
+The app exchanges the agent ID and API key on the server for a short-lived signed conversation URL; the browser receives only that URL. In the ElevenLabs dashboard, set Budd's first message and system prompt to match Declutter AI's calm, neutral listening behavior. The text-chat Dictate button uses the browser's speech-recognition API to place a transcript into the composer for review; it does not send microphone audio to the server.
+
 To deploy from GitHub:
 
 1. Push this project to `https://github.com/SanjeevRam2006/declutter` (or import the repository in Vercel).
@@ -40,6 +49,7 @@ To deploy from GitHub:
    - `AI_TIMEOUT_MS` — for example `30000`.
    - `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` — the Supabase project URL and API keys.
    - `PUBLIC_APP_URL` — the exact deployed origin, for example `https://declutter-fawn.vercel.app`.
+   - `ELEVENLABS_API_KEY` and `ELEVENLABS_AGENT_ID` — the server-side ElevenLabs credentials for Budd voice chat.
 
 4. Redeploy after saving the variables and open the generated `.vercel.app` URL.
 
@@ -80,7 +90,7 @@ Check that `source` is `deepinfra`; `fallback` means the provider could not answ
 
 ## Privacy and limits
 
-Conversation history is saved in this browser's local storage. It is not encrypted, and anyone with access to the browser profile may be able to read it. Clearing site data may remove chats. Deleting a chat removes it from this app's local history; it cannot erase messages already sent to DeepInfra. AI requests send a bounded part of the conversation to DeepInfra for processing. The API key remains on the Node server. The page loads no external fonts or scripts, and the server does not log chat content or keys.
+Conversation history is saved in this browser's local storage. It is not encrypted, and anyone with access to the browser profile may be able to read it. Clearing site data may remove chats. Deleting a chat removes it from this app's local history; it cannot erase messages already sent to DeepInfra. AI requests send a bounded part of the conversation to DeepInfra for processing. DeepInfra and ElevenLabs keys remain on the Node server. The page loads Google Fonts and a pinned ElevenLabs client SDK; the server does not log chat content or keys.
 
 Exported JSON backups contain the conversation text and should be treated like the chats themselves. Importing a backup creates new local copies; it does not upload the file to the server.
 

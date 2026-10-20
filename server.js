@@ -22,6 +22,7 @@ const PUBLIC_FILES = new Map([
   ["/app.js", "text/javascript; charset=utf-8"],
   ["/responder.js", "text/javascript; charset=utf-8"],
   ["/safety.js", "text/javascript; charset=utf-8"],
+  ["/voice.js", "text/javascript; charset=utf-8"],
   ["/manifest.json", "application/manifest+json; charset=utf-8"],
   ["/sw.js", "text/javascript; charset=utf-8"]
 ]);
@@ -42,7 +43,7 @@ const SECURITY_HEADERS = {
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "no-referrer",
   "X-Frame-Options": "DENY",
-  "Content-Security-Policy": "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; font-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+  "Content-Security-Policy": "default-src 'none'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com; img-src 'self' data:; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://api.elevenlabs.io https://*.elevenlabs.io wss://*.elevenlabs.io; media-src 'self' blob:; font-src 'self' https://fonts.gstatic.com; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
 };
 
 function sendJson(res, status, payload, extraHeaders = {}) {
@@ -261,6 +262,8 @@ function configFromEnv(env = process.env) {
     timeoutMs: Number.isInteger(timeout) && timeout >= 1000 && timeout <= 120000 ? timeout : 30000,
     model: env.DEEPINFRA_MODEL?.trim() || DEFAULT_MODEL,
     apiKey: env.DEEPINFRA_API_KEY?.trim() || "",
+    elevenLabsApiKey: env.ELEVENLABS_API_KEY?.trim() || "",
+    elevenLabsAgentId: env.ELEVENLABS_AGENT_ID?.trim() || "",
     accountFile: env.AUTH_FILE?.trim() || ACCOUNT_FILE
   };
 }
@@ -274,6 +277,19 @@ function createServer({ config = configFromEnv(), fetchImpl = fetch, authStore =
     if (pathname === "/api/health") {
       if (req.method !== "GET") { error(res, 405, "method_not_allowed", "Method not allowed."); return; }
       sendJson(res, 200, { ok: true, aiConfigured: Boolean(config.apiKey) });
+      return;
+    }
+
+    if (pathname === "/api/voice/signed-url") {
+      if (req.method !== "GET") { error(res, 405, "method_not_allowed", "Method not allowed."); return; }
+      if (!validLocalOrigin(req)) { error(res, 403, "origin_not_allowed", "Request origin is not allowed."); return; }
+      if (!config.elevenLabsApiKey || !config.elevenLabsAgentId) { error(res, 503, "voice_not_configured", "Voice chat is not configured yet."); return; }
+      try {
+        const response = await fetchImpl("https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=" + encodeURIComponent(config.elevenLabsAgentId), { headers: { "xi-api-key": config.elevenLabsApiKey, Accept: "application/json" } });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || !data.signed_url) { error(res, response.status === 401 || response.status === 403 ? 502 : 503, "voice_provider_error", "Could not start voice chat right now."); return; }
+        sendJson(res, 200, { signedUrl: data.signed_url });
+      } catch (_) { error(res, 503, "voice_provider_unavailable", "Could not reach the voice service right now."); }
       return;
     }
 

@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" />
   <link rel="stylesheet" href="styles.css" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='%238B7FB8'/><circle cx='50' cy='50' r='16' fill='%23FAF7F2'/></svg>" />
 </head>
@@ -36,6 +36,7 @@
         <button class="btn btn-ghost btn-sm" id="installBtn" type="button" hidden title="Install Declutter AI">Install app</button>
         <button class="btn btn-ghost btn-sm" id="themeBtn" type="button" aria-pressed="false" title="Switch between day and night themes">Night theme</button>
         <button class="btn btn-ghost btn-sm" id="sidebarBtn" type="button" aria-expanded="false" title="Open chats and tools">Chats</button>
+        <button class="btn btn-ghost btn-sm" id="voiceBtn" type="button" title="Open voice chat">Voice</button>
         <button class="btn btn-ghost btn-sm" id="focusBtn" type="button" aria-pressed="false" title="Open Focus Mode">Focus</button>
         <button class="btn btn-ghost btn-sm header-auth-btn profile-trigger" id="headerAccountBtn" type="button"><span class="profile-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="8" r="3.25"></circle><path d="M5.5 19c.7-3.2 3-5 6.5-5s5.8 1.8 6.5 5"></path></svg></span><span id="headerAccountLabel">Log in / Create account</span></button>
       </nav>
@@ -100,6 +101,7 @@
           <textarea id="composerInput" rows="3" maxlength="4000" aria-describedby="composerHint" placeholder="Write what's on your mind…"></textarea>
           <p class="composer-hint" id="composerHint">Enter to send · Shift+Enter for a new line <span id="draftStatus" aria-live="polite"></span><button class="clear-draft" id="clearDraftBtn" type="button" hidden>Clear draft</button><span class="char-count" id="charCount" aria-live="polite">0 / 4,000</span></p>
           <div class="actions-row composer-row">
+            <button class="btn btn-ghost" id="dictationBtn" type="button" aria-pressed="false" title="Dictate a message"><span aria-hidden="true">&#127908;</span><span id="dictationLabel">Dictate</span></button>
             <button class="btn btn-primary" id="sendBtn" type="submit">Send <span aria-hidden="true">→</span></button>
           </div>
         </form>
@@ -209,6 +211,28 @@
       <button class="btn btn-danger-ghost profile-logout" id="profileLogoutBtn" type="button">Log out</button>
     </section>
   </div>
+
+  <main class="voice-view wrap" id="voiceView" hidden aria-labelledby="voiceTitle">
+    <section class="voice-panel card">
+      <div class="voice-header">
+        <div>
+          <p class="step">VOICE CHAT</p>
+          <h1 id="voiceTitle">Talk it through with Budd.</h1>
+          <p class="muted">A calm, hands-free conversation for when speaking feels easier than typing.</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="voiceBackBtn" type="button">Back to text</button>
+      </div>
+      <div class="voice-orb" id="voiceOrb" aria-hidden="true"><span></span><span></span><span></span></div>
+      <p class="voice-status" id="voiceStatus" role="status" aria-live="polite">Ready when you are.</p>
+      <p class="voice-error" id="voiceError" role="alert" hidden></p>
+      <div class="voice-controls">
+        <button class="btn btn-primary voice-start" id="voiceStartBtn" type="button"><span class="voice-mic-icon" aria-hidden="true">●</span> Start voice chat</button>
+        <button class="btn btn-ghost" id="voiceMuteBtn" type="button" hidden aria-pressed="false">Mute mic</button>
+        <button class="btn btn-danger-ghost voice-end" id="voiceEndBtn" type="button" hidden>End call</button>
+      </div>
+      <p class="voice-note">Budd listens only while a call is active. You can end the session at any time.</p>
+    </section>
+  </main>
 
   <main class="focus-screen wrap" id="focusScreen" hidden aria-labelledby="focusTitle">
     <section class="focus-panel card">

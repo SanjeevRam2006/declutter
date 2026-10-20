@@ -26,6 +26,22 @@ function okProvider(text = "Start with the first paragraph and see what is actua
   return { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: text } }] }) };
 }
 
+test("voice signed URL stays server-side and requires voice configuration", async (t) => {
+  const calls = [];
+  const server = createServer({
+    config: { port: 8080, timeoutMs: 1000, apiKey: "", model: "test", elevenLabsApiKey: "eleven-secret", elevenLabsAgentId: "agent_budd" },
+    fetchImpl: async (url, options) => { calls.push({ url, options }); return { ok: true, status: 200, json: async () => ({ signed_url: "wss://signed.example/session" }) }; }
+  });
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  t.after(() => new Promise((resolve) => server.close(resolve)));
+  const response = await fetch(`http://127.0.0.1:${server.address().port}/api/voice/signed-url`);
+  const data = await response.json();
+  assert.equal(response.status, 200);
+  assert.equal(data.signedUrl, "wss://signed.example/session");
+  assert.equal(calls[0].options.headers["xi-api-key"], "eleven-secret");
+  assert.doesNotMatch(JSON.stringify(data), /eleven-secret|agent_budd/);
+});
+
 async function chat(base, messages, options = {}) {
   const response = await fetch(base + "/api/chat", {
     method: "POST", headers: { "Content-Type": "application/json", ...options.headers },
