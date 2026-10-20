@@ -11,7 +11,6 @@ const { safetyReply } = require("./safety.js");
 const ROOT = __dirname;
 const ACCOUNT_FILE = path.join(ROOT, "data", "users.json");
 const ENDPOINT = "https://api.deepinfra.com/v1/openai/chat/completions";
-const STT_ENDPOINT = "https://api.deepinfra.com/v1/openai/audio/transcriptions";
 const TTS_ENDPOINT = "https://api.deepinfra.com/v1/openai/audio/speech";
 const DEFAULT_MODEL = "meta-llama/Llama-3.3-70B-Instruct-Turbo";
 const DEFAULT_STT_MODEL = "openai/whisper-small";
@@ -364,9 +363,9 @@ function createServer({ config = configFromEnv(), fetchImpl = fetch, authStore =
         const recording = parseAudioMultipart(await readRawBody(req, MAX_AUDIO_BYTES), contentType);
         if (!recording || !recording.data.length) { error(res, 400, "invalid_audio", "The audio recording was empty or invalid."); return; }
         const form = new FormData();
-        form.append("file", new Blob([recording.data], { type: recording.type }), recording.filename);
-        form.append("model", config.sttModel);
-        const response = await fetchImpl(STT_ENDPOINT, { method: "POST", headers: { "Authorization": `Bearer ${config.apiKey}` }, body: form });
+        form.append("audio", new Blob([recording.data], { type: recording.type }), recording.filename);
+        form.append("task", "transcribe");
+        const response = await fetchImpl("https://api.deepinfra.com/v1/inference/" + config.sttModel, { method: "POST", headers: { "Authorization": `Bearer ${config.apiKey}` }, body: form });
         const data = await response.json().catch(() => ({}));
         if (!response.ok || typeof data.text !== "string") {
           const message = response.status === 401 || response.status === 403 ? "DeepInfra rejected the API key for Speech-to-Text." : "Could not transcribe the recording.";
