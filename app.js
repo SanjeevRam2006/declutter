@@ -914,6 +914,7 @@
   }
   function setFocusMode(mode) { if (focusTimer.mode === mode) return; focusTimer.mode = mode; resetFocusTimer(); renderFocus(); }
   function openFocusScreen() {
+    if (typeof window !== "undefined" && typeof window.dispatchEvent === "function") window.dispatchEvent(new Event("declutter:focus-open"));
     document.body.classList.add("focus-mode"); if (els.focusScreen) els.focusScreen.hidden = false;
     if (els.focusBtn) { els.focusBtn.setAttribute("aria-pressed", "true"); els.focusBtn.textContent = "Chat"; els.focusBtn.title = "Return to chat"; }
     renderFocus(); startFocusLoop(); if (els.focusBackBtn) els.focusBackBtn.focus();
@@ -924,6 +925,9 @@
     showChatView();
     renderFocus(); if (els.composerInput) els.composerInput.focus();
   }
+  if (typeof window !== "undefined" && typeof window.addEventListener === "function") window.addEventListener("declutter:voice-open", function () {
+    if (document.body.classList.contains("focus-mode")) closeFocusScreen();
+  });
   if (els.focusBtn) els.focusBtn.addEventListener("click", function () { document.body.classList.contains("focus-mode") ? closeFocusScreen() : openFocusScreen(); });
   if (els.focusBackBtn) els.focusBackBtn.addEventListener("click", closeFocusScreen);
   if (els.countdownModeBtn) els.countdownModeBtn.addEventListener("click", function () { setFocusMode("countdown"); });

@@ -23,6 +23,7 @@ function setVoiceStatus(message, state) {
 
 function showVoicePage() {
   if (!voiceEls.voiceView) return;
+  window.dispatchEvent(new Event("declutter:voice-open"));
   previousView = voiceEls.chatView && !voiceEls.chatView.hidden ? "chat" : "home";
   if (voiceEls.homeView) voiceEls.homeView.hidden = true;
   if (voiceEls.chatView) voiceEls.chatView.hidden = true;
@@ -159,4 +160,9 @@ voiceEls.voiceStartBtn?.addEventListener("click", startVoiceSession);
 voiceEls.voiceMuteBtn?.addEventListener("click", toggleVoiceMute);
 voiceEls.voiceEndBtn?.addEventListener("click", endVoiceSession);
 voiceEls.dictationBtn?.addEventListener("click", toggleDictation);
+window.addEventListener("declutter:focus-open", () => {
+  if (!document.body.classList.contains("voice-view")) return;
+  endVoiceSession();
+  hideVoicePage();
+});
 window.addEventListener("pagehide", () => { if (voiceSession) endVoiceSession(); if (dictation) { try { dictation.stop(); } catch (_) {} } });

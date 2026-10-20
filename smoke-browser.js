@@ -113,6 +113,15 @@ async function main() {
     await evaluate("document.querySelector('#focusBtn').click(); document.querySelector('#focusStartBtn').click(); document.querySelector('#focusResetBtn').click()");
     assert.equal(await evaluate("JSON.parse(localStorage.getItem('back_to_center_focus_timer_v1')).elapsedMs"), 0);
 
+    await evaluate("document.querySelector('#voiceBtn').click()");
+    assert.equal(await evaluate("document.body.classList.contains('voice-view') && !document.querySelector('#voiceView').hidden"), true, "Voice view should open by itself");
+    await evaluate("document.querySelector('#focusBtn').click()");
+    assert.equal(await evaluate("document.body.classList.contains('focus-mode') && !document.querySelector('#focusScreen').hidden && !document.body.classList.contains('voice-view')"), true, "Focus should replace Voice view");
+    await evaluate("document.querySelector('#focusBtn').click(); document.querySelector('#voiceBtn').click()");
+    assert.equal(await evaluate("document.body.classList.contains('voice-view') && !document.body.classList.contains('focus-mode')"), true, "Voice should replace Focus view");
+    await evaluate("document.querySelector('#voiceBackBtn').click()");
+    assert.equal(await evaluate("!document.body.classList.contains('voice-view') && !document.body.classList.contains('focus-mode')"), true, "Returning from Voice should restore the normal view");
+
     await evaluate("document.querySelector('#composerInput').value = 'A new thought'; document.querySelector('#composerInput').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', shiftKey: true, bubbles: true, cancelable: true }));");
     assert.equal(await evaluate("document.querySelector('#historyCount').innerText"), "0");
     await evaluate("document.querySelector('#composerInput').dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true }));");
