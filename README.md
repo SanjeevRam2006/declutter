@@ -59,6 +59,8 @@ Do not commit `.env`, `data/users.json`, or API keys. Vercel deployments do not 
 
 For local development without Supabase variables, the legacy file-backed account store remains available. It is not suitable for production because Vercel functions do not provide durable filesystem storage.
 
+Voice implementation note: voice mode uses push-to-talk ElevenLabs Speech-to-Text, the existing DeepInfra chat route, and ElevenLabs Text-to-Speech. Configure `ELEVENLABS_API_KEY` with Speech-to-Text and Text-to-Speech access plus `ELEVENLABS_TTS_VOICE_ID`; no ElevenLabs agent ID or signed URL is required. Keep these values server-side in local `.env` and Vercel Preview/Production.
+
 ## Tests
 
 Run the free, mocked suite with:

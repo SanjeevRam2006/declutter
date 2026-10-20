@@ -13,6 +13,7 @@ const ACCOUNT_FILE = path.join(ROOT, "data", "users.json");
 const ENDPOINT = "https://api.deepinfra.com/v1/openai/chat/completions";
 const DEFAULT_MODEL = "meta-llama/Llama-3.3-70B-Instruct-Turbo";
 const MAX_BODY_BYTES = 256 * 1024;
+const MAX_AUDIO_BYTES = 8 * 1024 * 1024;
 const MAX_MESSAGES = 24;
 const MAX_MESSAGE_CHARS = 4000;
 const MAX_CONTEXT_CHARS = 24000;
@@ -181,6 +182,46 @@ function readBody(req) {
   });
 }
 
+function readRawBody(req, maxBytes = MAX_BODY_BYTES) {
+  return new Promise((resolve, reject) => {
+    let size = 0;
+    let settled = false;
+    const chunks = [];
+    req.on("data", (chunk) => {
+      if (settled) return;
+      size += chunk.length;
+      if (size > maxBytes) {
+        settled = true;
+        reject({ status: 413, code: "payload_too_large", message: "The audio recording is too large." });
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on("end", () => { if (!settled) resolve(Buffer.concat(chunks)); });
+    req.on("error", () => { if (!settled) reject({ status: 400, code: "request_error", message: "Could not read the audio recording." }); });
+  });
+}
+
+function parseAudioMultipart(body, contentType) {
+  const match = String(contentType || "").match(/boundary=([^;]+)/i);
+  if (!match) return null;
+  const boundary = Buffer.from("--" + match[1].replace(/^"|"$/g, ""));
+  const headerEnd = body.indexOf(Buffer.from("\r\n\r\n"));
+  if (headerEnd < 0) return null;
+  const dataStart = headerEnd + 4;
+  const dataEnd = body.indexOf(Buffer.from("\r\n"), dataStart);
+  const nextBoundary = body.indexOf(Buffer.from("\r\n"), dataStart);
+  const boundaryStart = body.indexOf(boundary, dataStart);
+  if (boundaryStart < 0) return null;
+  const headers = body.slice(0, headerEnd).toString("utf8");
+  if (!/name="file"/i.test(headers)) return null;
+  const filename = (headers.match(/filename="([^"]*)"/i) || [])[1] || "recording.webm";
+  const type = (headers.match(/content-type:\s*([^\r\n]+)/i) || [])[1] || "audio/webm";
+  const end = boundaryStart >= dataStart ? boundaryStart : dataEnd;
+  if (end <= dataStart) return null;
+  return { data: body.slice(dataStart, end), filename, type: type.trim() };
+}
+
 function validateMessages(value) {
   if (!Array.isArray(value) || value.length === 0 || value.length > MAX_MESSAGES) return null;
   const messages = [];
@@ -264,6 +305,7 @@ function configFromEnv(env = process.env) {
     apiKey: env.DEEPINFRA_API_KEY?.trim() || "",
     elevenLabsApiKey: env.ELEVENLABS_API_KEY?.trim() || "",
     elevenLabsAgentId: env.ELEVENLABS_AGENT_ID?.trim() || "",
+    elevenLabsVoiceId: env.ELEVENLABS_TTS_VOICE_ID?.trim() || "",
     accountFile: env.AUTH_FILE?.trim() || ACCOUNT_FILE
   };
 }
@@ -301,6 +343,52 @@ function createServer({ config = configFromEnv(), fetchImpl = fetch, authStore =
         }
         sendJson(res, 200, { signedUrl: data.signed_url });
       } catch (_) { error(res, 503, "voice_provider_unavailable", "Could not reach the voice service right now."); }
+      return;
+    }
+
+    if (pathname === "/api/voice/transcribe") {
+      if (req.method !== "POST") { error(res, 405, "method_not_allowed", "Method not allowed."); return; }
+      if (!validLocalOrigin(req)) { error(res, 403, "origin_not_allowed", "Request origin is not allowed."); return; }
+      if (!config.elevenLabsApiKey) { error(res, 503, "voice_not_configured", "Voice transcription is not configured yet."); return; }
+      const contentType = req.headers["content-type"] || "";
+      if (!/^multipart\/form-data/i.test(contentType)) { error(res, 415, "invalid_content_type", "Send an audio recording."); return; }
+      try {
+        const recording = parseAudioMultipart(await readRawBody(req, MAX_AUDIO_BYTES), contentType);
+        if (!recording || !recording.data.length) { error(res, 400, "invalid_audio", "The audio recording was empty or invalid."); return; }
+        const form = new FormData();
+        form.append("file", new Blob([recording.data], { type: recording.type }), recording.filename);
+        form.append("model_id", "scribe_v1");
+        const response = await fetchImpl("https://api.elevenlabs.io/v1/speech-to-text", { method: "POST", headers: { "xi-api-key": config.elevenLabsApiKey }, body: form });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok || typeof data.text !== "string") {
+          const message = response.status === 401 || response.status === 403 ? "ElevenLabs rejected the API key or Speech-to-Text permission." : "Could not transcribe the recording.";
+          error(res, 503, "voice_transcription_error", message); return;
+        }
+        sendJson(res, 200, { text: data.text.trim() });
+      } catch (cause) { error(res, cause?.status || 503, cause?.code || "voice_transcription_unavailable", cause?.message || "Could not transcribe the recording."); }
+      return;
+    }
+
+    if (pathname === "/api/voice/speak") {
+      if (req.method !== "POST") { error(res, 405, "method_not_allowed", "Method not allowed."); return; }
+      if (!validLocalOrigin(req)) { error(res, 403, "origin_not_allowed", "Request origin is not allowed."); return; }
+      if (!config.elevenLabsApiKey || !config.elevenLabsVoiceId) { error(res, 503, "voice_not_configured", "Voice playback is not configured yet."); return; }
+      if (!/^application\/json(?:\s*;|$)/i.test(req.headers["content-type"] || "")) { error(res, 415, "invalid_content_type", "Use application/json."); return; }
+      let body;
+      try { body = JSON.parse(await readBody(req)); } catch (cause) { error(res, cause?.status || 400, cause?.code || "invalid_json", cause?.message || "Invalid JSON body."); return; }
+      const text = typeof body?.text === "string" ? body.text.trim().slice(0, MAX_MESSAGE_CHARS) : "";
+      if (!text) { error(res, 400, "invalid_text", "Provide text to speak."); return; }
+      try {
+        const response = await fetchImpl("https://api.elevenlabs.io/v1/text-to-speech/" + encodeURIComponent(config.elevenLabsVoiceId), {
+          method: "POST",
+          headers: { "xi-api-key": config.elevenLabsApiKey, "Content-Type": "application/json", Accept: "audio/mpeg" },
+          body: JSON.stringify({ text, model_id: "eleven_multilingual_v2", output_format: "mp3_44100_128" })
+        });
+        if (!response.ok) { error(res, 503, "voice_synthesis_error", response.status === 401 || response.status === 403 ? "ElevenLabs rejected the API key or Text-to-Speech permission." : "Could not create voice playback."); return; }
+        const audio = Buffer.from(await response.arrayBuffer());
+        res.writeHead(200, { ...SECURITY_HEADERS, "Content-Type": "audio/mpeg", "Content-Length": audio.length, "Cache-Control": "no-store" });
+        res.end(audio);
+      } catch (_) { error(res, 503, "voice_synthesis_unavailable", "Could not reach the voice service right now."); }
       return;
     }
 

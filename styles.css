@@ -456,6 +456,10 @@ body.hide-timestamps .message-time { display: none; }
 @keyframes voice-pulse { from { transform: scale(.75); opacity: .38; } to { transform: scale(1.9); opacity: .92; } }
 .voice-status { min-height: 1.5em; margin: 0; color: var(--ink-soft); font-size: .98rem; font-weight: 600; }
 .voice-error { max-width: 56ch; margin: 12px auto 0; color: var(--danger); font-size: .88rem; }
+.voice-transcript { width: min(100%, 560px); margin: 24px auto 0; padding: 16px 18px; border: 1px solid var(--line); border-radius: 16px; background: color-mix(in srgb, var(--surface) 82%, transparent); text-align: left; }
+.voice-transcript p { margin: 0; color: var(--ink-soft); line-height: 1.55; }
+.voice-transcript-label { margin-top: 12px !important; color: var(--lav-deep) !important; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.voice-transcript-label:first-child { margin-top: 0 !important; }
 .voice-controls { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 26px; }
 .voice-controls .btn { min-width: 130px; justify-content: center; }
 .voice-start { min-width: 190px !important; }

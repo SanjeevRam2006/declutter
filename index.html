@@ -225,12 +225,16 @@
       <div class="voice-orb" id="voiceOrb" aria-hidden="true"><span></span><span></span><span></span></div>
       <p class="voice-status" id="voiceStatus" role="status" aria-live="polite">Ready when you are.</p>
       <p class="voice-error" id="voiceError" role="alert" hidden></p>
+      <div class="voice-transcript" aria-live="polite">
+        <p class="voice-transcript-label">You said</p><p id="voiceTranscript">Your words will appear here after you speak.</p>
+        <p class="voice-transcript-label">Budd</p><p id="voiceReply">Budd's reply will appear here.</p>
+      </div>
       <div class="voice-controls">
         <button class="btn btn-primary voice-start" id="voiceStartBtn" type="button"><span class="voice-mic-icon" aria-hidden="true">●</span> Start voice chat</button>
         <button class="btn btn-ghost" id="voiceMuteBtn" type="button" hidden aria-pressed="false">Mute mic</button>
-        <button class="btn btn-danger-ghost voice-end" id="voiceEndBtn" type="button" hidden>End call</button>
+        <button class="btn btn-danger-ghost voice-end" id="voiceEndBtn" type="button" hidden>Cancel</button>
       </div>
-      <p class="voice-note">Budd listens only while a call is active. You can end the session at any time.</p>
+      <p class="voice-note">Tap start, say what you mean, then tap stop. Budd will listen, think, and speak back.</p>
     </section>
   </main>
 
