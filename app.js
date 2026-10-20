@@ -187,8 +187,8 @@
 
   /* ---------- thread rendering ---------- */
   function scrollBottom() {
-    if (document.body && document.body.classList.contains("chat-view") && els.thread && els.thread.lastElementChild) {
-      els.thread.lastElementChild.scrollIntoView({ block: "end", behavior: "auto" });
+    if (document.body && document.body.classList.contains("chat-view") && els.thread) {
+      els.thread.scrollTop = els.thread.scrollHeight;
       if (els.jumpLatestBtn) els.jumpLatestBtn.hidden = true;
       return;
     }
@@ -1398,7 +1398,7 @@
     }
   } catch (_) {}
   if (typeof navigator !== "undefined" && navigator.serviceWorker) {
-    navigator.serviceWorker.register("/sw.js?v=20261036").catch(function () { /* installability is optional */ });
+    navigator.serviceWorker.register("/sw.js?v=20261037").catch(function () { /* installability is optional */ });
   }
   if (typeof window !== "undefined" && window.addEventListener) {
     window.addEventListener("beforeinstallprompt", function (event) {
