@@ -67,6 +67,13 @@ async function main() {
     await command("Emulation.setDeviceMetricsOverride", { width: 320, height: 900, deviceScaleFactor: 1, mobile: true });
     await command("Page.navigate", { url: base });
     await waitFor(() => evaluate("document.readyState === 'complete' && !!document.querySelector('#thread .thread-empty')"), "app load");
+    if (process.env.UI_SCREENSHOT) {
+      await command("Emulation.setDeviceMetricsOverride", { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false });
+      await evaluate("document.fonts.ready");
+      const capture = await command("Page.captureScreenshot", { format: "png" });
+      fs.writeFileSync(process.env.UI_SCREENSHOT, Buffer.from(capture.data, "base64"));
+      await command("Emulation.setDeviceMetricsOverride", { width: 320, height: 900, deviceScaleFactor: 1, mobile: true });
+    }
 
     await evaluate("document.querySelector('#signupBtn').click()");
     const authLayout = await evaluate("(() => { const backdrop = document.querySelector('#authModal'); const card = document.querySelector('.auth-modal').getBoundingClientRect(); return { hidden: backdrop.hidden, top: card.top, bottom: card.bottom, viewport: innerHeight, position: getComputedStyle(backdrop).position }; })()");
