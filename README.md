@@ -31,6 +31,8 @@ Hosted accounts use Supabase. Configure `SUPABASE_URL` (the project URL, not the
 
 ### Voice chat setup
 
+The current implementation uses DeepInfra for all three voice stages (Whisper STT, the existing chat model, and Kokoro TTS). The older ElevenLabs agent variables below are legacy and are ignored by the current voice flow.
+
 Voice mode uses ElevenLabs Conversational AI for the browser-based conversation with Budd. Add these server-side variables in local `.env` and in Vercel Preview/Production (never put the values in frontend code):
 
 - `ELEVENLABS_API_KEY` — an ElevenLabs API key with Conversational AI access.
@@ -59,7 +61,7 @@ Do not commit `.env`, `data/users.json`, or API keys. Vercel deployments do not 
 
 For local development without Supabase variables, the legacy file-backed account store remains available. It is not suitable for production because Vercel functions do not provide durable filesystem storage.
 
-Voice implementation note: voice mode uses push-to-talk ElevenLabs Speech-to-Text, the existing DeepInfra chat route, and ElevenLabs Text-to-Speech. Configure `ELEVENLABS_API_KEY` with Speech-to-Text and Text-to-Speech access plus `ELEVENLABS_TTS_VOICE_ID`; no ElevenLabs agent ID or signed URL is required. Keep these values server-side in local `.env` and Vercel Preview/Production.
+Voice implementation note: voice mode uses push-to-talk DeepInfra Speech-to-Text, the existing DeepInfra chat route, and low-cost DeepInfra Kokoro Text-to-Speech. Configure `DEEPINFRA_API_KEY`; optional defaults are `DEEPINFRA_STT_MODEL=openai/whisper-small`, `DEEPINFRA_TTS_MODEL=hexgrad/Kokoro-82M`, and `DEEPINFRA_TTS_VOICE=af_bella`. ElevenLabs credentials are not required for voice mode.
 
 ## Tests
 

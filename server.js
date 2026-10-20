@@ -11,7 +11,12 @@ const { safetyReply } = require("./safety.js");
 const ROOT = __dirname;
 const ACCOUNT_FILE = path.join(ROOT, "data", "users.json");
 const ENDPOINT = "https://api.deepinfra.com/v1/openai/chat/completions";
+const STT_ENDPOINT = "https://api.deepinfra.com/v1/openai/audio/transcriptions";
+const TTS_ENDPOINT = "https://api.deepinfra.com/v1/openai/audio/speech";
 const DEFAULT_MODEL = "meta-llama/Llama-3.3-70B-Instruct-Turbo";
+const DEFAULT_STT_MODEL = "openai/whisper-small";
+const DEFAULT_TTS_MODEL = "hexgrad/Kokoro-82M";
+const DEFAULT_TTS_VOICE = "af_bella";
 const MAX_BODY_BYTES = 256 * 1024;
 const MAX_AUDIO_BYTES = 8 * 1024 * 1024;
 const MAX_MESSAGES = 24;
@@ -302,6 +307,9 @@ function configFromEnv(env = process.env) {
     port: Number.isInteger(port) && port > 0 && port <= 65535 ? port : 8080,
     timeoutMs: Number.isInteger(timeout) && timeout >= 1000 && timeout <= 120000 ? timeout : 30000,
     model: env.DEEPINFRA_MODEL?.trim() || DEFAULT_MODEL,
+    sttModel: env.DEEPINFRA_STT_MODEL?.trim() || DEFAULT_STT_MODEL,
+    ttsModel: env.DEEPINFRA_TTS_MODEL?.trim() || DEFAULT_TTS_MODEL,
+    ttsVoice: env.DEEPINFRA_TTS_VOICE?.trim() || DEFAULT_TTS_VOICE,
     apiKey: env.DEEPINFRA_API_KEY?.trim() || "",
     elevenLabsApiKey: env.ELEVENLABS_API_KEY?.trim() || "",
     elevenLabsAgentId: env.ELEVENLABS_AGENT_ID?.trim() || "",
@@ -349,7 +357,7 @@ function createServer({ config = configFromEnv(), fetchImpl = fetch, authStore =
     if (pathname === "/api/voice/transcribe") {
       if (req.method !== "POST") { error(res, 405, "method_not_allowed", "Method not allowed."); return; }
       if (!validLocalOrigin(req)) { error(res, 403, "origin_not_allowed", "Request origin is not allowed."); return; }
-      if (!config.elevenLabsApiKey) { error(res, 503, "voice_not_configured", "Voice transcription is not configured yet."); return; }
+      if (!config.apiKey) { error(res, 503, "voice_not_configured", "Voice transcription is not configured yet."); return; }
       const contentType = req.headers["content-type"] || "";
       if (!/^multipart\/form-data/i.test(contentType)) { error(res, 415, "invalid_content_type", "Send an audio recording."); return; }
       try {
@@ -357,11 +365,11 @@ function createServer({ config = configFromEnv(), fetchImpl = fetch, authStore =
         if (!recording || !recording.data.length) { error(res, 400, "invalid_audio", "The audio recording was empty or invalid."); return; }
         const form = new FormData();
         form.append("file", new Blob([recording.data], { type: recording.type }), recording.filename);
-        form.append("model_id", "scribe_v1");
-        const response = await fetchImpl("https://api.elevenlabs.io/v1/speech-to-text", { method: "POST", headers: { "xi-api-key": config.elevenLabsApiKey }, body: form });
+        form.append("model", config.sttModel);
+        const response = await fetchImpl(STT_ENDPOINT, { method: "POST", headers: { "Authorization": `Bearer ${config.apiKey}` }, body: form });
         const data = await response.json().catch(() => ({}));
         if (!response.ok || typeof data.text !== "string") {
-          const message = response.status === 401 || response.status === 403 ? "ElevenLabs rejected the API key or Speech-to-Text permission." : "Could not transcribe the recording.";
+          const message = response.status === 401 || response.status === 403 ? "DeepInfra rejected the API key for Speech-to-Text." : "Could not transcribe the recording.";
           error(res, 503, "voice_transcription_error", message); return;
         }
         sendJson(res, 200, { text: data.text.trim() });
@@ -372,19 +380,19 @@ function createServer({ config = configFromEnv(), fetchImpl = fetch, authStore =
     if (pathname === "/api/voice/speak") {
       if (req.method !== "POST") { error(res, 405, "method_not_allowed", "Method not allowed."); return; }
       if (!validLocalOrigin(req)) { error(res, 403, "origin_not_allowed", "Request origin is not allowed."); return; }
-      if (!config.elevenLabsApiKey || !config.elevenLabsVoiceId) { error(res, 503, "voice_not_configured", "Voice playback is not configured yet."); return; }
+      if (!config.apiKey) { error(res, 503, "voice_not_configured", "Voice playback is not configured yet."); return; }
       if (!/^application\/json(?:\s*;|$)/i.test(req.headers["content-type"] || "")) { error(res, 415, "invalid_content_type", "Use application/json."); return; }
       let body;
       try { body = JSON.parse(await readBody(req)); } catch (cause) { error(res, cause?.status || 400, cause?.code || "invalid_json", cause?.message || "Invalid JSON body."); return; }
       const text = typeof body?.text === "string" ? body.text.trim().slice(0, MAX_MESSAGE_CHARS) : "";
       if (!text) { error(res, 400, "invalid_text", "Provide text to speak."); return; }
       try {
-        const response = await fetchImpl("https://api.elevenlabs.io/v1/text-to-speech/" + encodeURIComponent(config.elevenLabsVoiceId), {
+        const response = await fetchImpl(TTS_ENDPOINT, {
           method: "POST",
-          headers: { "xi-api-key": config.elevenLabsApiKey, "Content-Type": "application/json", Accept: "audio/mpeg" },
-          body: JSON.stringify({ text, model_id: "eleven_multilingual_v2", output_format: "mp3_44100_128" })
+          headers: { "Authorization": `Bearer ${config.apiKey}`, "Content-Type": "application/json", Accept: "audio/mpeg" },
+          body: JSON.stringify({ model: config.ttsModel, input: text, voice: config.ttsVoice, response_format: "mp3" })
         });
-        if (!response.ok) { error(res, 503, "voice_synthesis_error", response.status === 401 || response.status === 403 ? "ElevenLabs rejected the API key or Text-to-Speech permission." : "Could not create voice playback."); return; }
+        if (!response.ok) { error(res, 503, "voice_synthesis_error", response.status === 401 || response.status === 403 ? "DeepInfra rejected the API key for Text-to-Speech." : "Could not create voice playback."); return; }
         const audio = Buffer.from(await response.arrayBuffer());
         res.writeHead(200, { ...SECURITY_HEADERS, "Content-Type": "audio/mpeg", "Content-Length": audio.length, "Cache-Control": "no-store" });
         res.end(audio);
