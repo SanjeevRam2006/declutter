@@ -87,8 +87,25 @@ async function startVoiceSession() {
   if (SpeechRecognition) {
     voiceRecognition = new SpeechRecognition(); voiceRecognition.lang = document.documentElement.lang || "en-US"; voiceRecognition.continuous = false; voiceRecognition.interimResults = true;
     let transcript = "";
-    voiceRecognition.onresult = (event) => { transcript = ""; for (let i = event.resultIndex; i < event.results.length; i += 1) transcript += event.results[i][0].transcript; if (voiceEls.voiceTranscript && transcript) voiceEls.voiceTranscript.textContent = transcript; };
-    voiceRecognition.onerror = (event) => { voiceRecognition = null; recording = false; resetVoiceControls(); setVoiceError(event.error === "not-allowed" ? "Microphone access was blocked. Allow it for this site, then try again." : "Could not understand that recording. Try again."); setVoiceStatus("Ready when you are.", "error"); };
+    voiceRecognition.onresult = (event) => {
+      // Keep all final/interim segments instead of replacing the transcript on
+      // every result event. Some browsers emit several chunks for one sentence.
+      transcript = "";
+      for (let i = 0; i < event.results.length; i += 1) transcript += event.results[i][0].transcript;
+      if (voiceEls.voiceTranscript && transcript.trim()) voiceEls.voiceTranscript.textContent = transcript.trim();
+    };
+    voiceRecognition.onerror = (event) => {
+      voiceRecognition = null; recording = false; resetVoiceControls();
+      const messages = {
+        "not-allowed": "Microphone access was blocked. Click the lock icon beside the address bar, allow Microphone, then reload.",
+        "audio-capture": "No microphone was found. Connect a microphone and try again.",
+        "no-speech": "I didn't hear speech. Speak for a moment after the button changes to Stop listening.",
+        "network": "Your browser's speech service is unavailable. Try Chrome or Edge, disable VPN/ad-blocking, and try again.",
+        "aborted": "Listening was cancelled."
+      };
+      setVoiceError(messages[event.error] || `Speech recognition failed (${event.error || "unknown error"}). Try Chrome or Edge.`);
+      setVoiceStatus("Ready when you are.", "error");
+    };
     voiceRecognition.onend = () => { voiceRecognition = null; recording = false; if (transcript.trim()) processTranscript(transcript.trim()); else { resetVoiceControls(); setVoiceStatus("Ready when you are.", "idle"); } };
     try { voiceRecognition.start(); recording = true; if (voiceEls.voiceStartBtn) voiceEls.voiceStartBtn.textContent = "■ Stop listening"; if (voiceEls.voiceEndBtn) voiceEls.voiceEndBtn.hidden = false; setVoiceStatus("Listening... tap stop when you're done.", "recording"); } catch (_) { voiceRecognition = null; setVoiceError("Could not start microphone input. Try again."); }
     return;
