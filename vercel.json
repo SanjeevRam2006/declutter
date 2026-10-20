@@ -14,6 +14,7 @@
   "routes": [
     { "src": "/api/auth(?:/(.*))?", "dest": "/api/auth.js?route=$1" },
     { "src": "/api/account(?:/(.*))?", "dest": "/api/account.js?route=$1" },
+    { "src": "/api/voice(?:/(.*))?", "dest": "/api/voice.js?route=$1" },
     { "src": "/api/(.*)", "dest": "/api/$1.js" },
     {
       "src": "/(.*)",
