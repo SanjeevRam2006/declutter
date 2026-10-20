@@ -305,7 +305,7 @@ function configFromEnv(env = process.env) {
     apiKey: env.DEEPINFRA_API_KEY?.trim() || "",
     elevenLabsApiKey: env.ELEVENLABS_API_KEY?.trim() || "",
     elevenLabsAgentId: env.ELEVENLABS_AGENT_ID?.trim() || "",
-    elevenLabsVoiceId: env.ELEVENLABS_TTS_VOICE_ID?.trim() || "",
+    elevenLabsVoiceId: env.ELEVENLABS_TTS_VOICE_ID?.trim() || "21m00Tcm4TlvDq8ikWAM",
     accountFile: env.AUTH_FILE?.trim() || ACCOUNT_FILE
   };
 }
