@@ -167,8 +167,12 @@
 
   function autoResizeComposer() {
     if (!els.composerInput || !els.composerInput.style) return;
-    // Keep the composer stable while typing; longer drafts scroll inside it.
-    els.composerInput.style.height = "96px";
+    // Keep a compact single-line bar, expanding only as the draft needs space.
+    els.composerInput.style.height = "auto";
+    var maxHeight = 160;
+    var nextHeight = Math.min(maxHeight, Math.max(48, els.composerInput.scrollHeight));
+    els.composerInput.style.height = nextHeight + "px";
+    els.composerInput.style.overflowY = els.composerInput.scrollHeight > maxHeight ? "auto" : "hidden";
   }
 
   function restoreDraft() {
@@ -1393,7 +1397,7 @@
     }
   } catch (_) {}
   if (typeof navigator !== "undefined" && navigator.serviceWorker) {
-    navigator.serviceWorker.register("/sw.js?v=20261023").catch(function () { /* installability is optional */ });
+    navigator.serviceWorker.register("/sw.js?v=20261033").catch(function () { /* installability is optional */ });
   }
   if (typeof window !== "undefined" && window.addEventListener) {
     window.addEventListener("beforeinstallprompt", function (event) {

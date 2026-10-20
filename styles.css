@@ -234,7 +234,7 @@ body[data-theme="night"] .auth-modal input { background: #302c3b; color: var(--i
 body[data-theme="night"] .auth-modal { background: #282532; }
 body.chat-view .chat-card { min-height: 0; }
 body.chat-view .msg p { font-size: .92rem; line-height: 1.45; }
-body.chat-view #composer textarea { min-height: 96px; font-size: .95rem; }
+body.chat-view #composer textarea { min-height: 48px; font-size: .95rem; }
 /* Keep the active conversation focused; starter prompts remain available on
    the landing screen where they are most useful. */
 body.chat-view .chips-row { display: none; }
@@ -436,11 +436,14 @@ body.hide-timestamps .message-time { display: none; }
 .chat-stats { margin: 8px 2px 0; color: var(--ink-faint); font-size: 0.75rem; text-align: right; font-variant-numeric: tabular-nums; }
 .chips-row { margin: 12px 0 2px; }
 #composer { position: sticky; bottom: 0; z-index: 6; padding: 10px 0 12px; background: linear-gradient(to bottom, color-mix(in srgb, var(--card) 0%, transparent), color-mix(in srgb, var(--card) 94%, transparent) 24%, var(--card) 58%); }
-#composer textarea { height: 112px; min-height: 96px; max-height: 240px; margin-top: 10px; padding: 14px 16px 68px; overflow-y: auto; resize: vertical; font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif; border: 1px solid var(--line); box-shadow: none; }
-#composer textarea:focus { border-color: var(--line); box-shadow: 0 0 0 3px color-mix(in srgb, var(--lav) 34%, transparent); }
-.composer-field { position: relative; }
-.composer-row { position: absolute; right: 12px; bottom: 12px; display: flex; flex-wrap: nowrap; align-items: center; gap: 9px; margin: 0; }
-.composer-row #dictationBtn { width: 46px; height: 46px; min-width: 46px; padding: 0; justify-content: center; border-radius: 14px; }
+#composer textarea { flex: 1 1 auto; width: auto; min-width: 0; height: 48px; min-height: 48px; max-height: 160px; margin: 0; padding: 10px 12px; overflow-y: hidden; resize: none; font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif; border: 0; border-radius: 18px; background: transparent; box-shadow: none; }
+#composer textarea:focus { border-color: transparent; box-shadow: none; }
+.composer-field { display: flex; align-items: flex-end; gap: 8px; min-height: 64px; padding: 8px; border: 1px solid var(--line); border-radius: 24px; background: var(--card); box-shadow: inset 0 1px 3px rgba(43,42,40,.045), 0 2px 0 color-mix(in srgb, var(--line) 76%, transparent); transition: border-color .18s ease, box-shadow .18s ease; }
+.composer-field:focus-within { border-color: color-mix(in srgb, var(--lav) 48%, var(--line)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--lav) 16%, transparent), inset 0 1px 3px rgba(43,42,40,.04); }
+.composer-field > .btn { flex: 0 0 auto; width: 46px; height: 46px; min-width: 46px; padding: 0; justify-content: center; border-radius: 50%; }
+.composer-new-chat svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.composer-row { display: flex; flex: 0 0 auto; align-items: center; gap: 7px; margin: 0; }
+.composer-row .btn { width: 46px; height: 46px; min-width: 46px; padding: 0; justify-content: center; border-radius: 50%; }
 .composer-mic svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .composer-row #dictationBtn.recording { border-color: var(--danger); color: var(--danger); background: color-mix(in srgb, var(--danger) 8%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--danger) 16%, transparent); }
 
@@ -577,9 +580,10 @@ kbd { display: inline-block; min-width: 24px; padding: 3px 7px; border: 1px soli
   .voice-panel { padding: 24px 18px; }
   .voice-orb { width: 128px; height: 128px; margin-top: 42px; }
   .voice-controls .btn, .composer-row .btn { width: auto; }
-  .composer-row { right: 9px; bottom: 9px; gap: 7px; }
-  .composer-row #dictationBtn { width: 42px; height: 42px; min-width: 42px; }
-  #composer textarea { padding: 13px 14px 64px; }
+  .composer-field { gap: 5px; padding: 6px; border-radius: 22px; }
+  .composer-field > .btn, .composer-row .btn { width: 40px; height: 40px; min-width: 40px; }
+  .composer-row { gap: 5px; }
+  #composer textarea { padding: 8px 5px; font-size: .92rem; }
   .home-view { padding-top: 54px; padding-bottom: 54px; }
   .home-entry-footer { align-items: stretch; flex-direction: column; padding: 8px; }
   .home-entry-footer .btn { width: 100%; }
@@ -612,7 +616,7 @@ kbd { display: inline-block; min-width: 24px; padding: 3px 7px; border: 1px soli
   .msg { max-width: 82%; }
   .msg p { font-size: 1.18rem; line-height: 1.65; }
   .message-action { font-size: .82rem; }
-  #composer textarea { min-height: 126px; font-size: 1.24rem; }
+  #composer textarea { min-height: 48px; font-size: 1.05rem; }
   .chip { font-size: .98rem; padding: 10px 17px; }
   .btn { font-size: 1rem; padding: 14px 26px; }
   .btn-sm { padding: 10px 19px; font-size: .95rem; }

@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" />
-  <link rel="stylesheet" href="styles.css?v=20261032" />
+  <link rel="stylesheet" href="styles.css?v=20261033" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='38' fill='%238B7FB8'/><circle cx='50' cy='50' r='16' fill='%23FAF7F2'/></svg>" />
 </head>
 <body>
@@ -99,12 +99,13 @@
         <form id="composer" autocomplete="off">
           <label class="visually-hidden" for="composerInput">Write a message</label>
           <div class="composer-field">
-            <textarea id="composerInput" rows="3" maxlength="4000" aria-describedby="composerHint" placeholder="Write what's on your mind…"></textarea>
+            <button class="btn btn-ghost composer-new-chat" id="newChatBtn" type="button" aria-label="Start a new chat" title="Start a new chat"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"></path></svg></button>
+            <textarea id="composerInput" rows="1" maxlength="4000" aria-describedby="composerHint" placeholder="Write what's on your mind…"></textarea>
             <div class="actions-row composer-row">
-              <button class="btn btn-primary composer-send" id="sendBtn" type="submit" aria-label="Send message" title="Send message"><span aria-hidden="true"><svg class="send-arrow" viewBox="0 0 24 24" focusable="false"><path d="M5 12h14m-6-6 6 6-6 6"></path></svg></span></button>
               <button class="btn btn-ghost composer-mic" id="dictationBtn" type="button" aria-label="Start dictation" aria-pressed="false" title="Start dictation">
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 18v3m-4 0h8"></path></svg>
               </button>
+              <button class="btn btn-primary composer-send" id="sendBtn" type="submit" aria-label="Send message" title="Send message"><span aria-hidden="true"><svg class="send-arrow" viewBox="0 0 24 24" focusable="false"><path d="M5 12h14m-6-6 6 6-6 6"></path></svg></span></button>
             </div>
           </div>
           <p class="composer-hint" id="composerHint">Enter to send · Shift+Enter for a new line <span id="draftStatus" aria-live="polite"></span><button class="clear-draft" id="clearDraftBtn" type="button" hidden>Clear draft</button><span class="char-count" id="charCount" aria-live="polite">0 / 4,000</span></p>
@@ -315,7 +316,7 @@
 
   <script src="responder.js?v=20261023"></script>
   <script src="safety.js?v=20261023"></script>
-  <script src="app.js?v=20261023"></script>
+  <script src="app.js?v=20261033"></script>
   <script type="module" src="voice.js?v=20261031"></script>
 </body>
 </html>
