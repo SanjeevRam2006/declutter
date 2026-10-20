@@ -87,6 +87,13 @@ async function main() {
     await evaluate("document.querySelector('#privacyCloseBtn').click()");
     assert.equal(await evaluate("document.querySelector('#privacyModal').hidden"), true, "Privacy dialog should close cleanly");
 
+    await evaluate("document.querySelector('#focusBtn').click(); document.querySelector('#brandHome').click()");
+    assert.equal(await evaluate("!document.querySelector('#homeView').hidden && !document.body.classList.contains('focus-mode') && document.querySelector('#focusBtn').textContent === 'Focus'"), true, "Brand link should return home from Focus mode");
+    await evaluate("document.querySelector('#voiceBtn').click(); document.querySelector('#brandHome').click()");
+    assert.equal(await evaluate("!document.querySelector('#homeView').hidden && document.querySelector('#voiceView').hidden && !document.body.classList.contains('voice-view')"), true, "Brand link should end Voice mode and return home");
+    assert.equal(await evaluate("document.querySelector('#brandHome').getAttribute('href')"), "/", "Brand link should have a working home URL fallback");
+    assert.equal(await evaluate("Math.round(document.querySelector('.site-header').getBoundingClientRect().top)"), 0, "Header should align with the top of the viewport");
+
     for (const width of [320, 500, 768, 1024, 1440]) {
       await command("Emulation.setDeviceMetricsOverride", { width, height: 900, deviceScaleFactor: 1, mobile: width <= 500 });
       const size = await evaluate("({ viewport: innerWidth, page: document.documentElement.scrollWidth })");

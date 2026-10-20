@@ -792,9 +792,17 @@
   });
 
   function showHomeView() {
-    if (document.body) document.body.classList.remove("chat-view");
+    if (document.body && document.body.classList.contains("voice-view") && typeof window !== "undefined" && window.dispatchEvent) {
+      window.dispatchEvent(new Event("declutter:chat-open"));
+    }
+    if (document.body) document.body.classList.remove("chat-view", "focus-mode", "voice-view");
     if (els.homeView) els.homeView.hidden = false;
     if (els.chatView) els.chatView.hidden = true;
+    if (els.focusScreen) els.focusScreen.hidden = true;
+    var voiceView = document.getElementById("voiceView");
+    if (voiceView) voiceView.hidden = true;
+    if (els.focusBtn) { els.focusBtn.setAttribute("aria-pressed", "false"); els.focusBtn.textContent = "Focus"; els.focusBtn.title = "Open Focus Mode"; }
+    setSidebar(false);
     if (typeof history !== "undefined" && history.replaceState) history.replaceState(null, "", window.location.pathname || "/");
   }
   function showChatView() {
@@ -1384,7 +1392,7 @@
     }
   } catch (_) {}
   if (typeof navigator !== "undefined" && navigator.serviceWorker) {
-    navigator.serviceWorker.register("/sw.js?v=20261044").catch(function () { /* installability is optional */ });
+    navigator.serviceWorker.register("/sw.js?v=20261045").catch(function () { /* installability is optional */ });
   }
   if (typeof window !== "undefined" && window.addEventListener) {
     window.addEventListener("beforeinstallprompt", function (event) {
