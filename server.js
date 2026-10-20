@@ -289,12 +289,6 @@ function createServer({ config = configFromEnv(), fetchImpl = fetch, authStore =
         const response = await fetchImpl("https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=" + encodeURIComponent(config.elevenLabsAgentId), { headers: { "xi-api-key": config.elevenLabsApiKey, Accept: "application/json" } });
         const data = await response.json().catch(() => ({}));
         if (!response.ok || !data.signed_url) {
-          if (response.status === 401) {
-            // Public agents do not require a key. Let the client try the
-            // supported agentId flow instead of blocking on an unrelated key.
-            sendJson(res, 200, { agentId: config.elevenLabsAgentId, mode: "public" });
-            return;
-          }
           const message = response.status === 401
             ? "ElevenLabs rejected the API key. Check that it is active and belongs to this workspace."
             : response.status === 403

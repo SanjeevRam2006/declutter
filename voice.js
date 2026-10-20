@@ -7,6 +7,7 @@ let voiceEnding = false;
 let dictation = null;
 let dictating = false;
 let dictationStopping = false;
+let voiceConnected = false;
 let previousView = "home";
 
 function setVoiceError(message) {
@@ -52,6 +53,7 @@ async function endVoiceSession() {
   voiceEnding = true;
   const active = voiceSession;
   voiceSession = null;
+  voiceConnected = false;
   if (active && typeof active.endSession === "function") {
     try { await active.endSession(); } catch (_) { /* cleanup is best effort */ }
   }
@@ -65,6 +67,7 @@ async function endVoiceSession() {
 async function startVoiceSession() {
   if (voiceStarting || voiceSession) return;
   voiceStarting = true;
+  voiceConnected = false;
   setVoiceError("");
   if (voiceEls.voiceStartBtn) voiceEls.voiceStartBtn.disabled = true;
   setVoiceStatus("Requesting microphone access...", "connecting");
@@ -83,12 +86,17 @@ async function startVoiceSession() {
       ...(data.signedUrl ? { signedUrl: data.signedUrl } : { agentId: data.agentId }),
       overrides: { agent: { firstMessage: "Hey. What's on your mind?" } },
       onConnect: () => {
+        voiceConnected = true;
         if (voiceEls.voiceStartBtn) voiceEls.voiceStartBtn.hidden = true;
         if (voiceEls.voiceEndBtn) voiceEls.voiceEndBtn.hidden = false;
         if (voiceEls.voiceMuteBtn && (typeof voiceSession?.setMicMuted === "function" || typeof voiceSession?.setMuted === "function")) voiceEls.voiceMuteBtn.hidden = false;
         setVoiceStatus("Connected. Budd is listening.", "listening");
       },
-      onDisconnect: () => { if (!voiceEnding) endVoiceSession(); },
+      onDisconnect: () => {
+        if (voiceEnding) return;
+        if (!voiceConnected && !voiceEls.voiceError?.textContent) setVoiceError("Budd disconnected before the call could start. Check the ElevenLabs API key, agent access, and agent ID.");
+        endVoiceSession();
+      },
       onError: (error) => { setVoiceError(error?.message || "The voice connection was interrupted."); setVoiceStatus("Connection problem", "error"); },
       onModeChange: (mode) => { const speaking = mode && mode.mode === "speaking"; setVoiceStatus(speaking ? "Budd is speaking..." : "Budd is listening...", speaking ? "speaking" : "listening"); },
     });
