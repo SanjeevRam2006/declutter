@@ -12,7 +12,7 @@
   ["homeView", "homeEntry", "homeInput", "chatView", "thread", "promptChips", "composer", "composerInput", "sendBtn",
     "emptyError", "storageWarning", "responseStatus", "accountNudge", "nudgeSignup", "nudgeDismiss", "retryBtn", "privacyBtn", "privacyModal", "privacyCloseBtn",
     "historyList", "historyCount", "emptyHistory", "deleteAllBtn", "brandHome",
-    "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "historyDrawer", "historyDrawerToggle", "historyDrawerCloseSlider", "historyDrawerScrim", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "chatStats", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountGreeting", "homeAccountGreeting", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "headerAccountBtn", "headerAccountLabel", "saveAccountChatBtn", "syncAccountChatsBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authEmail", "authEmailRow", "authUsername", "authUsernameRow", "authPasswordRow", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authResetBtn", "authSwitchBtn", "profileModal", "profileTitle", "profileCloseBtn", "profileUsername", "profileEmail", "changePasswordToggle", "changePasswordForm", "currentPassword", "newPassword", "confirmNewPassword", "profileError", "changePasswordBtn", "profileLogoutBtn"
+    "historySearch", "clearSearchBtn", "activeChatsBtn", "pinnedOnlyBtn", "archivedBtn", "exportBtn", "exportCurrentBtn", "shareCurrentBtn", "copyLinkBtn", "importBtn", "importInput", "draftStatus", "clearDraftBtn", "charCount", "focusBtn", "sidebarBtn", "historyDrawer", "historyDrawerToggle", "historyDrawerCloseSlider", "historyDrawerScrim", "focusScreen", "focusBackBtn", "countdownModeBtn", "stopwatchModeBtn", "focusTime", "focusState", "focusPresets", "focusDescription", "focusStartBtn", "focusResetBtn", "focusNotice", "installBtn", "themeBtn", "takeaway", "takeawayText", "clearTakeawayBtn", "privateNote", "noteStatus", "undoDeleteBtn", "deleteCurrentBtn", "shortcutOverlay", "closeShortcutsBtn", "checkHealthBtn", "healthResult", "togglePromptsBtn", "textSmallerBtn", "textResetBtn", "textLargerBtn", "timestampsBtn", "accountGreeting", "homeAccountGreeting", "accountStatus", "loginBtn", "signupBtn", "logoutBtn", "headerAccountBtn", "headerAccountLabel", "saveAccountChatBtn", "syncAccountChatsBtn", "accountSavedList", "authModal", "authModeLabel", "authTitle", "authCloseBtn", "authForm", "authEmail", "authEmailRow", "authUsername", "authUsernameRow", "authPasswordRow", "authPassword", "confirmPasswordRow", "authConfirmPassword", "authError", "authSubmitBtn", "authResetBtn", "authSwitchBtn", "profileModal", "profileTitle", "profileCloseBtn", "profileUsername", "profileEmail", "changePasswordToggle", "changePasswordForm", "currentPassword", "newPassword", "confirmNewPassword", "profileError", "changePasswordBtn", "profileLogoutBtn"
   ].forEach(function (id) { els[id] = $(id); });
 
   var convos = [];
@@ -297,18 +297,6 @@
     if (els.noteStatus) els.noteStatus.textContent = c && c.privateNote ? "Saved locally" : "";
   }
 
-  function renderChatStats() {
-    if (!els.chatStats) return;
-    var c = current();
-    if (!c || !c.messages.length) { els.chatStats.textContent = ""; return; }
-    var words = c.messages.reduce(function (total, m) { return total + String(m.text).trim().split(/\s+/).filter(Boolean).length; }, 0);
-    var turns = c.messages.filter(function (m) { return m.role === "user"; }).length;
-    var latest = c.messages[c.messages.length - 1].at;
-    var when = "";
-    try { when = " · last active " + new Date(latest).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }); } catch (_) {}
-    els.chatStats.textContent = turns + (turns === 1 ? " turn" : " turns") + " · " + words.toLocaleString() + " words" + when;
-  }
-
   function renderCurrentDelete() { if (els.deleteCurrentBtn) els.deleteCurrentBtn.hidden = !current(); }
 
   function renderThread() {
@@ -323,7 +311,6 @@
       showResponseStatus("", false);
       renderTakeaway();
       renderPrivateNote();
-      renderChatStats();
       renderCurrentDelete();
       renderAccount();
       return;
@@ -343,7 +330,6 @@
     else showResponseStatus("", false);
     renderTakeaway();
     renderPrivateNote();
-    renderChatStats();
     renderCurrentDelete();
     renderAccount();
     scrollBottom();
@@ -1398,7 +1384,7 @@
     }
   } catch (_) {}
   if (typeof navigator !== "undefined" && navigator.serviceWorker) {
-    navigator.serviceWorker.register("/sw.js?v=20261040").catch(function () { /* installability is optional */ });
+    navigator.serviceWorker.register("/sw.js?v=20261041").catch(function () { /* installability is optional */ });
   }
   if (typeof window !== "undefined" && window.addEventListener) {
     window.addEventListener("beforeinstallprompt", function (event) {
